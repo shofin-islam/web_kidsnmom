@@ -1,6 +1,10 @@
 <?php
 
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\RoleController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\ProductController;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,16 +17,34 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+/*
+|--------------------------------------------------------------------------
+| return view('welcome'); to get the admin login section
+*/
 Route::get('/', function () {
     return view('welcome');
 });
 
+/*
+|--------------------------------------------------------------------------
+| return view('usersdashboard'); to handle logged in users back 
+*/
+
+// Route::get('/', function () {
+//     return view('usersdashboard');
+// })->middleware(['auth', 'verified'])->name('/');
+
 Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth'])->name('dashboard');
+    return view('usersdashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
 
 require __DIR__.'/auth.php';
-
 
 Route::get('/admin/dashboard', function () {
     return view('admin.dashboard');
@@ -31,4 +53,12 @@ Route::get('/admin/dashboard', function () {
 require __DIR__.'/adminauth.php';
 
 
+Route::group(['middleware' => ['auth']], function() {
 
+    Route::resource('roles', RoleController::class);
+
+    Route::resource('users', UserController::class);
+
+    Route::resource('products', ProductController::class);
+
+});

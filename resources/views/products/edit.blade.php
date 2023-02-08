@@ -24,7 +24,7 @@
         <!-- /. tools -->
     </div>
     
-    <form action="{{ route('products.update',$product->id) }}" method="POST" enctype="multipart/form-data">
+    <form action="{{ route('products.update',$product->pid) }}" method="POST" enctype="multipart/form-data">
         @csrf
         @method('PUT')
     <section class="content-header">
@@ -43,7 +43,7 @@
     <section class="content">
         <div class="row">
             <div class="col-md-8">
-
+            {{$product->pid}} {{$product->name}}
                 <div class="box box-danger">
                     <div class="box-body">
                         <div class="form-group">
@@ -103,12 +103,11 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label>Product Description:</label>
-                            {{ $product->details }}
+                            <label>Product Description:</label> {{ $product->details }}
                             <div class="input-group">
                                 <div class="form-group" style=" margin-top: 5px;">
                                     <textarea class="textarea" name="details" placeholder="Product Short Description"
-                                        style="width: 100%;height: 125px; font-size: 14px; line-height: 18px; border: 1px solid #dddddd; padding: 10px;"> <div>addasdasdada</div>
+                                        style="width: 100%;height: 125px; font-size: 14px; line-height: 18px; border: 1px solid #dddddd; padding: 10px;"> {{ $product->details }}
                                     </textarea>
                                     <span class="text-danger">{{ $errors->has('details') ? $errors->first('details') : ''}} </span>
                                 </div>

@@ -66,7 +66,8 @@ class ProductController extends Controller
                 ->join('categories', 'products.categoryId', '=', 'categories.id')
                 ->join('manufacturers', 'products.manufacturerId', '=', 'manufacturers.id')
                 ->where('products.publicationStatus',1)
-                ->paginate(3);
+                ->where('products.deletionStatus',0)
+                ->paginate(100);
 
             return view('products.index',compact('products'));
 
@@ -187,17 +188,18 @@ class ProductController extends Controller
 
     {
         $product_id = $product->id;
+        
         $productById = DB::table('products')
                 ->join('categories', 'products.categoryId', '=', 'categories.id')
                 ->join('manufacturers', 'products.manufacturerId', '=', 'manufacturers.id')
-                ->select('products.*','categories.id','manufacturers.id','categories.categoryName', 'manufacturers.manufacturerName')
+                ->select('products.*','products.id as pid','categories.id','manufacturers.id','categories.categoryName', 'manufacturers.manufacturerName')
                 ->where('products.id', $product_id)
                 ->first();
 
         $manufacturers = Manufacturer::where('publicationStatus', 1)->get();
         $categorys = Category::where('publicationStatus', 1)->get();
         
-        // return $productById;
+        // dd($productById);
 
         return view('products.edit',['product' => $productById,'manufacturers' => $manufacturers, 'categorys' => $categorys]);
 
@@ -219,27 +221,35 @@ class ProductController extends Controller
 
      */
 
-    public function update(Request $request, Product $product)
+    public function update(Request $request, $id)
 
     {
-
-         request()->validate([
+        
+        request()->validate([
 
             'name' => 'required',
-
-            'detail' => 'required',
-
+            'categoryId' => 'required|not_in:0',
+            'manufacturerId' => 'required|not_in:0',
+            'purchasePrice' => 'required',
+            'salesPrice' => 'required',
+            'productQuantity' => 'required',
+            'publicationStatus' => 'required|not_in:0',
         ]);
+        // dd($request);
+        $productById = Product::find($id);
+        // dd($productById);
+        $productById->name = $request->name;
+        $productById->productCode = $request->productCode;
+        $productById->categoryId = $request->categoryId;
+        $productById->manufacturerId = $request->manufacturerId;
+        $productById->purchasePrice = $request->purchasePrice;
+        $productById->salesPrice = $request->salesPrice;
+        $productById->productQuantity = $request->productQuantity;
+        $productById->details = $request->details;
+        $productById->publicationStatus = $request->publicationStatus;
+        $productById->save();
 
-    
-
-        $product->update($request->all());
-
-    
-
-        return redirect()->route('products.index')
-
-                        ->with('success','Product updated successfully');
+        return redirect()->route('products.index')->with('success','Product updated successfully');
 
     }
 
@@ -265,7 +275,7 @@ class ProductController extends Controller
         
         $product->deletionStatus = 1;
         $product->save();
-        return redirect()->route('products.index')->with('success','Product deleted successfully');
+        return redirect()->route('products.index')->with('success','Product deleted successfully') ;
 
     }
 

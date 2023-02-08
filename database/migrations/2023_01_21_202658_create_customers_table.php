@@ -1,10 +1,10 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-class CreateCustomersTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -16,11 +16,13 @@ class CreateCustomersTable extends Migration
         Schema::create('customers', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name');
-            //$table->string('email',100)->unique();// go to confiq > database > set 'charset' => 'utf8','collation' => 'utf8_unicode_ci',
-            $table->string('password');
+            $table->string('password')->nullable();
             $table->text('address');
-            $table->integer('phoneNumber');
+            $table->string('phoneNumber')->nullable();
+            $table->integer('projectId')->nullable();
+            $table->tinyInteger('publicationStatus')->default(0);
             $table->tinyInteger('deletionStatus')->default(0);
+            $table->string('image')->nullable();
             $table->timestamps();
         });
     }
@@ -34,4 +36,4 @@ class CreateCustomersTable extends Migration
     {
         Schema::dropIfExists('customers');
     }
-}
+};

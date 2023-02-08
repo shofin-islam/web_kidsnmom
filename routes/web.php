@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\ExpenseTypeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -61,4 +63,6 @@ Route::group(['middleware' => ['auth']], function() {
 
     Route::resource('products', ProductController::class);
 
+    Route::resource('customers', CustomerController::class);
+    Route::resource('expenseType', ExpenseTypeController::class);
 });

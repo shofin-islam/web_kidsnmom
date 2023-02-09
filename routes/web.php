@@ -7,6 +7,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ExpenseTypeController;
+use App\Http\Controllers\ExpenseController;
 
 /*
 |--------------------------------------------------------------------------
@@ -65,4 +66,5 @@ Route::group(['middleware' => ['auth']], function() {
 
     Route::resource('customers', CustomerController::class);
     Route::resource('expenseType', ExpenseTypeController::class);
+    Route::resource('expense', ExpenseController::class);
 });

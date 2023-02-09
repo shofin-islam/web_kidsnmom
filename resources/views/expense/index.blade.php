@@ -81,7 +81,7 @@
 }
 
 </style>
-@section('title','Manage Customers')
+@section('title','Manage Expenses')
 
 @section('mainContent')
 <!-- Main content -->
@@ -91,11 +91,11 @@
             <div class="box">
                 <div class="box-header">
                     <div class="pull-left">
-                        <a class="btn btn-warning" href="{{ route('customers.create') }}"> New Customer</a>
+                        <a class="btn btn-warning" href="{{ route('expense.create') }}"> New Expense</a>
                     </div>
                     <div class="center-block" style="text-align: center; margin: 3px;padding: 3px;">
                         <i class="fa fa-tasks"></i>
-                        <h3 class="box-title">Manage Customers</h3><br>
+                        <h3 class="box-title">Manage Expenses</h3><br>
                         
                         @if (session()->has('success'))
                         <div class="alert alert-success" style="margin: 10px;">
@@ -109,31 +109,29 @@
                     <table id="example1" class="table table-bordered table-striped">
                 <thead>
                     <tr>
-                        <th>Customer ID</th>
-                        <th>Name</th>
-                        <th>Address</th>
-                        <th>Phone Number</th>
+                        <th>Expense ID</th>
+                        <th>type</th>
+                        <th>Amount</th>
                         <th>Project#</th>
-                        <th>Publication Status</th>
+                        <th>Details</th>
                         <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($customers as $customer)
+                    @foreach($expenses as $expense)
                     <tr>
-                        <td>{{ $customer->id }}</td>
-                        <td>{{ $customer->name }}</td>
-                        <td>{{ $customer->address }}</td>
-                        <td>{{ $customer->phoneNumber }}</td>
-                        <td>{{ $customer->projectId }}</td>
-                        <td>{{ $customer->publicationStatus==1 ? 'Published' : "Unpublished" }}</td>
-                        <td><a href="{{ route('customers.show',$customer->id) }}" class="btn btn-info" title="View"><span class="glyphicon glyphicon-zoom-in"></span>
+                        <td>{{ $expense->id }}</td>
+                        <td>{{ $expense->name }}</td>
+                        <td>{{ $expense->amount }}</td>
+                        <td>{{ $expense->projectId }}</td>
+                        <td>{{ $expense->details }}</td>
+                        <td><a href="{{ route('expense.show',$expense->id) }}" class="btn btn-info" title="View"><span class="glyphicon glyphicon-zoom-in"></span>
                             </a>
-                            <a href="{{ route('customers.edit',$customer->id) }}" class="btn btn-success" title="Edit">
+                            <a href="{{ route('expense.edit',$expense->id) }}" class="btn btn-success" title="Edit">
                              <span class="glyphicon glyphicon-edit"></span>
                             </a>
                             
-                            <form action="{{ route('customers.destroy',$customer->id) }}" method="POST">
+                            <form action="{{ route('expense.destroy',$expense->id) }}" method="POST">
                             @csrf
 
                             @method('DELETE')
@@ -151,7 +149,6 @@
             </table>
             <div class="row">
                 <!-- this is for default links -->
-            <!-- {!! $customers->links() !!} -->
             </div>
             <div class="col-md-12">
                 <div class="col-md-4">
@@ -162,7 +159,7 @@
                 </div>
                 
                 <div class="col-md-4 ">
-                        {{ $customers->links('vendor.pagination.custom')}}
+                        {{ $expenses->links('vendor.pagination.custom')}}
                 </div>
             </div>
                 </div>

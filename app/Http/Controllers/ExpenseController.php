@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Expense;
 use Illuminate\Http\Request;
+use App\Models\ExpenseType;
 
 class ExpenseController extends Controller
 {
@@ -14,7 +15,22 @@ class ExpenseController extends Controller
      */
     public function index()
     {
-        //
+
+        $expenses = Expense::select(
+            'expenses.id', 
+            'expenses.type',
+            'expenses.details',
+            'expenses.amount',
+            'expenses.projectId',
+            'expense_types.name',
+        )
+        ->join('expense_types', 'expenses.type', '=', 'expense_types.id')
+        ->paginate(100);
+
+        // $expenses = Expense::where('deletionStatus',0)->get();
+
+    // dd($expenses);
+    return view('expense.index',compact('expenses'));
     }
 
     /**
@@ -24,7 +40,10 @@ class ExpenseController extends Controller
      */
     public function create()
     {
-        //
+        $extypes = ExpenseType::where('deletionStatus',0)->get();
+    // dd($extypes);
+
+        return view('expense.create',compact('extypes'));
     }
 
     /**
@@ -35,7 +54,25 @@ class ExpenseController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        request()->validate([
+
+            'details' => 'required',
+            'projectId' => 'required|not_in:0',
+            'type' => 'required|not_in:0',
+            'amount' => 'required|numeric|gt:0',
+        ]);
+
+        // Product::create($request->all());
+
+        $expense = new Expense();
+
+        $expense->type = $request->type;
+        $expense->details = $request->details;
+        $expense->projectId = $request->projectId;
+        $expense->amount = $request->amount;
+        $expense->save();
+        
+        return redirect()->route('expense.index')->with('success','expense added successfully.');
     }
 
     /**

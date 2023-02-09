@@ -55,8 +55,6 @@
                             </div>
                         </div>
                         
-                        
-                        
                         <div class="form-group">
                             <label>Details:</label>
                             
@@ -71,7 +69,6 @@
                         </div>
                         <div class="form-group">
                             <label>Project:</label>
-
                             <div class="input-group col-sm-6">
                                 <div class="input-group-addon">
                                     <i class="fa fa-gg"></i>

@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\ProductOrder;
+use App\Models\Product;
+use App\Models\Customer;
 use Illuminate\Http\Request;
-
+use Response;
+use DB;
 class ProductOrderController extends Controller
 {
     /**
@@ -14,7 +17,21 @@ class ProductOrderController extends Controller
      */
     public function index()
     {
-        //
+        $orders = ProductOrder::select(
+            'product_orders.id', 
+            'product_orders.unit',
+            'product_orders.payable',
+            'product_orders.paid',
+            'product_orders.due',
+            'p.name as productName',
+            'c.name as customerName',
+            'c.phoneNumber as CustomersContact'
+
+        )
+        ->join('products as p', 'p.id', '=', 'product_orders.productId')
+        ->join('customers as c', 'c.id', '=', 'product_orders.customerId')
+        ->paginate(100);
+    return view('productOrder.index',compact('orders')); 
     }
 
     /**
@@ -24,7 +41,9 @@ class ProductOrderController extends Controller
      */
     public function create()
     {
-        //
+        $products = Product::where('publicationStatus', 1)->get();
+        $customers = Customer::where('publicationStatus', 1)->get();
+        return view('productOrder.create',['products' => $products, 'customers' => $customers]);
     }
 
     /**
@@ -35,7 +54,59 @@ class ProductOrderController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        request()->validate([
+
+            'productId' => 'required|not_in:0',
+            'customerId' => 'required|not_in:0',
+            'projectId' => 'required|not_in:0',
+            'unit' => 'required|min:1',
+            'flatDiscount' => 'required|numeric',
+            'paid' => 'required|numeric',
+        ]);
+
+        $pId = $request->productId;
+        $cId = $request->customerId;
+        
+
+        $productInfo = Product::where('id', $pId )->first();
+        $customerInfo = Customer::where('id', $cId)->first();
+
+        $unit = $request->unit;
+        $subTotal = $unit*$productInfo->salesPrice;
+        $payble=$subTotal-$request->flatDiscount;
+        $productOrder = new ProductOrder();
+
+        $productOrder->productId = $request->productId;
+        $productOrder->customerId = $request->customerId;
+        $productOrder->unit = $unit;
+        $subTotal = $subTotal;
+        // $productOrder->customerDetails = json_encode(Response::json($customerInfo));
+        // $productOrder->productDetails = json_encode(Response::json($productInfo));
+
+        $productOrder->customerDetails = json_encode($customerInfo);
+        $productOrder->productDetails = json_encode($productInfo);
+
+        $productOrder->projectId = $request->projectId;
+        $productOrder->flatDiscount = $request->flatDiscount;
+        $productOrder->payable = $payble;
+        $productOrder->paid = $request->paid;
+        $productOrder->due = $payble-$request->paid;
+        $productOrder->note = $request->note;
+        $productOrder->save();
+        
+        return redirect()->route('sales.index')->with('success','Order created successfully.');
+    }
+
+    public function productById(Request $request)
+    {
+        $products = Product::where('id', $request->id)->get();
+        return Response::json($products);
+    }
+
+    public function customerById(Request $request)
+    {
+        $customer = Customer::where('id', $request->id)->get();
+        return Response::json($customer);
     }
 
     /**
@@ -44,9 +115,20 @@ class ProductOrderController extends Controller
      * @param  \App\Models\ProductOrder  $productOrder
      * @return \Illuminate\Http\Response
      */
-    public function show(ProductOrder $productOrder)
+    public function show($id)
     {
-        //
+        $order = ProductOrder::select(
+            'product_orders.*',
+            'p.name as productName',
+            'c.name as customerName',
+            'c.phoneNumber as CustomersContact'
+        )
+        ->join('products as p', 'p.id', '=', 'product_orders.productId')
+        ->join('customers as c', 'c.id', '=', 'product_orders.customerId')
+        ->where('product_orders.id',$id)
+        ->first();
+        // return Response::json($order);
+        return view('productOrder.show',compact('order')); 
     }
 
     /**

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Expense;
 use Illuminate\Http\Request;
 use App\Models\ExpenseType;
+use DB;
 
 class ExpenseController extends Controller
 {
@@ -25,6 +26,7 @@ class ExpenseController extends Controller
             'expense_types.name',
         )
         ->join('expense_types', 'expenses.type', '=', 'expense_types.id')
+        ->where('expenses.deletionStatus',0)
         ->paginate(100);
 
         // $expenses = Expense::where('deletionStatus',0)->get();
@@ -94,7 +96,19 @@ class ExpenseController extends Controller
      */
     public function edit(Expense $expense)
     {
-        //
+        $expenseId = $expense->id;
+        $expenseById = DB::table('expenses')
+                ->join('expense_types', 'expenses.type', '=', 'expense_types.id')
+                ->select('expenses.*','expense_types.name as name')
+                ->where('expenses.id', $expenseId)
+                ->first();
+
+        $extypes = ExpenseType::where('deletionStatus', 0)->get();
+        
+        // dd($expenseById);
+
+        return view('expense.edit',['expenseById' => $expenseById,'extypes' => $extypes]);
+
     }
 
     /**
@@ -104,9 +118,24 @@ class ExpenseController extends Controller
      * @param  \App\Models\Expense  $expense
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Expense $expense)
+    public function update(Request $request, $id)
     {
-        //
+        request()->validate([
+            'details' => 'required',
+            'projectId' => 'required|not_in:0',
+            'type' => 'required|not_in:0',
+            'amount' => 'required|numeric|gt:0',
+        ]);
+        // dd($request);
+        $expenseById = Expense::find($id);
+        $expenseById->type = $request->type;
+        $expenseById->details = $request->details;
+        $expenseById->projectId = $request->projectId;
+        $expenseById->amount = $request->amount;
+        $expenseById->save();
+        // dd($expenseById);
+        return redirect()->route('expense.index')->with('success','Expense updated successfully');
+
     }
 
     /**
@@ -117,6 +146,9 @@ class ExpenseController extends Controller
      */
     public function destroy(Expense $expense)
     {
-        //
+        $expense->deletionStatus = 1;
+        $expense->save();
+        return redirect()->route('expense.index')->with('success','Expense deleted successfully') ;
+
     }
 }

@@ -1,13 +1,13 @@
 @extends('layouts.app')
 
-@section('title','Edit-Customer-Info')
+@section('title','Edit-Expense')
 
 @section('mainContent')
 <div class="box box-info">
     <div class="box-header">
         <div class="center-block" style="text-align: center">
             <i class="fa fa-cart-plus"></i>
-            <h3 class="box-title">Edit Customers Information</h3>
+            <h3 class="box-title">Edit Expense</h3>
             @if (session()->has('success'))
             <div class="alert alert-success" style="margin: 5px;">
                 {{ session('success') }}
@@ -22,18 +22,18 @@
         </div>
         <!-- /. tools -->
     </div>
-    <form action="{{ route('customers.update', $customer->id) }}" method="POST" enctype="multipart/form-data">
+    <form action="{{ route('expense.update', $expenseById->id) }}" method="POST" enctype="multipart/form-data">
         @csrf
         @method('PUT')
     <section class="content-header">
         <h1>
-            Customer Information
+            Expense Information
             <small>Preview</small>
         </h1>
         <ol class="breadcrumb">
             <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li><a href="#">Customer</a></li>
-            <li class="active">Edit Customer</li>
+            <li><a href="#">Expense</a></li>
+            <li class="active">Edit</li>
         </ol>
     </section>
 
@@ -44,50 +44,41 @@
 
                 <div class="box box-danger">
                     <div class="box-body">
-                        <div class="form-group">
-                            <label>Customers Name:</label>
-
+                    <div class="form-group">
+                            <label>Expense Type:</label>
                             <div class="input-group col-sm-6">
                                 <div class="input-group-addon">
                                     <i class="fa fa-gg"></i>
                                 </div>
-                                <input type="text" name="name" class="form-control" value="{{ $customer->name }}">
-                                <span class="text-danger">{{ $errors->has('name') ? $errors->first('name') : ''}} </span>
+                                <select class=" form-control select2" name="type" id="type">
+                                            <option value="0"> --- Select Type --- </option>
+                                            @foreach($extypes as $extype)
+                                            <option value="{{ $extype->id }}">{{ $extype->name }}</option>
+                                            @endforeach
+                                        </select>
+                                <span class="text-danger">{{ $errors->has('type') ? $errors->first('type') : ''}} </span>
                             </div>
                         </div>
                         
                         <div class="form-group">
-                            <label>Phone Number:</label>
-
-                            <div class="input-group col-sm-6">
-                                <div class="input-group-addon">
-                                    <i class="fa fa-gg"></i>
-                                </div>
-                                <input type="text" name="phoneNumber" class="form-control" value="{{ $customer->phoneNumber }}">
-                                <span class="text-danger">{{ $errors->has('phoneNumber') ? $errors->first('phoneNumber') : ''}} </span>
-                            </div>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>Address:</label>
+                            <label>Details:</label>
                             
                             <div class="input-group">
                                 <div class="form-group" style=" margin-top: 5px;">
-                                    <textarea class="textarea " name="address" value="{{ old('address') }}" placeholder="Customer Address"
-                                        style="width: 100%;height: 125px; font-size: 14px; line-height: 18px; border: 1px solid #dddddd; padding: 10px;">{{ $customer->address }}
+                                    <textarea class="textarea " name="details"  placeholder="Expense details"
+                                        style="width: 100%;height: 125px; font-size: 14px; line-height: 18px; border: 1px solid #dddddd; padding: 10px;">{{ $expenseById->details }}
                                     </textarea>
-                                    <span class="text-danger">{{ $errors->has('address') ? $errors->first('address') : ''}} </span>
+                                    <span class="text-danger">{{ $errors->has('details') ? $errors->first('details') : ''}} </span>
                                 </div>
                             </div>
                         </div>
                         <div class="form-group">
                             <label>Project:</label>
-
                             <div class="input-group col-sm-6">
                                 <div class="input-group-addon">
                                     <i class="fa fa-gg"></i>
                                 </div>
-                                <select class=" form-control select2" name="projectId">
+                                <select class=" form-control select2" name="projectId" id="projectId">
                                             <option value="0"> --- Select Project --- </option>
                                             <option value="1">Master Project</option>
                                         </select>
@@ -95,18 +86,13 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label>Publication Status:</label>
-
+                            <label>Amount:</label>
                             <div class="input-group col-sm-6">
                                 <div class="input-group-addon">
                                     <i class="fa fa-gg"></i>
                                 </div>
-                                <select class="form-control select2" name="publicationStatus">
-                                    <option value="0"> --- Select Publication Status --- </option>
-                                    <option value="1">Published</option>
-                                    <option value="2">Unpublished</option>
-                                </select>
-                                <span class="text-danger">{{ $errors->has('publicationStatus') ? $errors->first('publicationStatus') : ''}} </span>
+                                <input type="text" name="amount" class="form-control" value="{{ $expenseById->amount }}">
+                                <span class="text-danger">{{ $errors->has('amount') ? $errors->first('amount') : ''}} </span>
                             </div>
                         </div>
                     </div>
@@ -125,10 +111,11 @@
 </div>
 
 @endsection
+
 @section('myscripts')
 
 <script>
-    document.getElementById('projectId').value = {{ $customer->projectId }};
-    document.getElementById('publicationStatus').value = {{ $customer->publicationStatus }};
+    document.getElementById('projectId').value = {{ $expenseById->projectId }};
+    document.getElementById('type').value = {{ $expenseById->type }};
 </script>
 @endsection

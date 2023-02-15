@@ -8,6 +8,8 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ExpenseTypeController;
 use App\Http\Controllers\ExpenseController;
+use App\Http\Controllers\ProductOrderController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -67,4 +69,7 @@ Route::group(['middleware' => ['auth']], function() {
     Route::resource('customers', CustomerController::class);
     Route::resource('expenseType', ExpenseTypeController::class);
     Route::resource('expense', ExpenseController::class);
+    Route::post('/sales/productById', [ProductOrderController::class, 'productById']);
+    Route::post('/sales/customerById', [ProductOrderController::class, 'customerById']);
+    Route::resource('sales', ProductOrderController::class);
 });

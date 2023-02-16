@@ -257,8 +257,7 @@
             console.log(data);
             $("#productDetails").html("Name: "+data[0].name+"<br>Code: "+data[0].code+"<br>Purchase Price: "+data[0].purchasePrice+"<br>Sale price: "+data[0].salesPrice+"<br>Product Quantity: "+data[0].productQuantity);
             unitPrice = data[0].salesPrice;
-            // var unit = $("#unit").val();
-            // subTotal.val(unitPrice*unit);
+            unit.val(0);
             reset();
         }
         });

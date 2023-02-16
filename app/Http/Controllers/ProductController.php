@@ -56,10 +56,7 @@ class ProductController extends Controller
 
     {
                 $products = Product::select(
-                    'products.id', 
-                    'products.name',
-                    'products.publicationStatus',
-                    'products.deletionStatus',
+                    'products.*',
                     'categories.categoryName',
                     'manufacturers.manufacturerName'
                 )

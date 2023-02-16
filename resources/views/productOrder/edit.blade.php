@@ -1,14 +1,13 @@
 @extends('layouts.app')
 
-@section('title','Edit-Product')
+@section('title','New-Order')
 
 @section('mainContent')
 <div class="box box-info">
     <div class="box-header">
         <div class="center-block" style="text-align: center">
             <i class="fa fa-cart-plus"></i>
-
-            <h3 class="box-title">Create Product</h3>
+            <h3 class="box-title">Edit Order</h3>
             @if (session()->has('success'))
             <div class="alert alert-success" style="margin: 5px;">
                 {{ session('success') }}
@@ -23,8 +22,7 @@
         </div>
         <!-- /. tools -->
     </div>
-    
-    <form action="{{ route('products.update',$product->pid) }}" method="POST" enctype="multipart/form-data">
+    <form action="{{ route('sales.update',$order->id) }}" method="POST" enctype="multipart/form-data">
         @csrf
         @method('PUT')
     <section class="content-header">
@@ -38,134 +36,160 @@
             <li class="active">New Product</li>
         </ol>
     </section>
-
     <!-- Main content -->
     <section class="content">
         <div class="row">
-            <div class="col-md-8">
-            {{$product->pid}} {{$product->name}}
+            <div class="col-md-6">
                 <div class="box box-danger">
                     <div class="box-body">
-                        <div class="form-group">
+                    <div class="form-group">
                             <label>Product Name:</label>
-
-                            <div class="input-group col-sm-6">
+                            <div class="input-group col-sm-8">
                                 <div class="input-group-addon">
                                     <i class="fa fa-gg"></i>
                                 </div>
-                                <input type="text" name="name" class="form-control" value="{{ $product->name }}">
-                                <span class="text-danger">{{ $errors->has('name') ? $errors->first('name') : ''}} </span>
+                                <select class=" form-control select2" name="productId" id="productId">
+                                            <option value="0"> --- Select Product Name --- </option>
+                                            @foreach($products as $product)
+                                            <option value="{{ $product->id }}">{{ $product->name }}</option>
+                                            @endforeach
+                                        </select>
+                                <span class="text-danger">{{ $errors->has('productId') ? $errors->first('productId') : ''}} </span>
                             </div>
                         </div>
                         
                         <div class="form-group">
-                            <label>Product Code:</label>
-
-                            <div class="input-group col-sm-6">
+                            <label>Customer Name:</label>
+                            <div class="input-group col-sm-8">
                                 <div class="input-group-addon">
                                     <i class="fa fa-gg"></i>
                                 </div>
-                                <input type="text" name="productCode" class="form-control" value="{{ $product->productCode }}">
-                                <span class="text-danger">{{ $errors->has('productCode') ? $errors->first('productCode') : ''}} </span>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>Purchase Price:</label>
-
-                            <div class="input-group col-sm-6">
-                                <div class="input-group-addon">
-                                    <i class="fa fa-gg"></i>
-                                </div>
-                                <input type="number" name="purchasePrice" class="form-control" value="{{ $product->purchasePrice }}">
-                                <span class="text-danger">{{ $errors->has('purchasePrice') ? $errors->first('purchasePrice') : ''}} </span>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>Product Price:</label>
-
-                            <div class="input-group col-sm-6">
-                                <div class="input-group-addon">
-                                    <i class="fa fa-gg"></i>
-                                </div>
-                                <input type="number" name="salesPrice" class="form-control" value="{{ $product->salesPrice }}">
-                                <span class="text-danger">{{ $errors->has('salesPrice') ? $errors->first('salesPrice') : ''}} </span>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>Product Quantity:</label>
-
-                            <div class="input-group col-sm-6">
-                                <div class="input-group-addon">
-                                    <i class="fa fa-gg"></i>
-                                </div>
-                                <input type="number" name="productQuantity" class="form-control" value="{{ $product->productQuantity }}">
-                                <span class="text-danger">{{ $errors->has('productQuantity') ? $errors->first('productQuantity') : ''}} </span>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>Product Description:</label> {{ $product->details }}
-                            <div class="input-group">
-                                <div class="form-group" style=" margin-top: 5px;">
-                                    <textarea class="textarea" name="details" placeholder="Product Short Description"
-                                        style="width: 100%;height: 125px; font-size: 14px; line-height: 18px; border: 1px solid #dddddd; padding: 10px;"> {{ $product->details }}
-                                    </textarea>
-                                    <span class="text-danger">{{ $errors->has('details') ? $errors->first('details') : ''}} </span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Category Name:</label>
-
-                            <div class="input-group col-sm-6">
-                                <div class="input-group-addon">
-                                    <i class="fa fa-gg"></i>
-                                </div>
-                                <select class=" form-control select2" name="categoryId" id="categoryId">
+                                <select class=" form-control select2" name="customerId" id="customerId">
                                             <option value="0"> --- Select Category Name --- </option>
-                                            @foreach($categorys as $category)
-                                            <option value="{{ $category->id }}">{{ $category->categoryName }}</option>
+                                            @foreach($customers as $customer)
+                                            <option value="{{ $customer->id }}">{{ $customer->name }}</option>
                                             @endforeach
                                         </select>
-                                <span class="text-danger">{{ $errors->has('categoryId') ? $errors->first('categoryId') : ''}} </span>
+                                <span class="text-danger">{{ $errors->has('customerId') ? $errors->first('customerId') : ''}} </span>
                             </div>
                         </div>
+                        
                         <div class="form-group">
-                            <label>Manufacturer Name:</label>
-
-                            <div class="input-group col-sm-6">
+                            <label>Unit:</label>
+                            <div class="input-group col-sm-8">
                                 <div class="input-group-addon">
                                     <i class="fa fa-gg"></i>
                                 </div>
-                                    <select class="form-control select2" name="manufacturerId" id="manufacturerId">
-                                            <option value="0"> --- Select Manufacturer Name --- </option>
-                                            @foreach($manufacturers as $manufacturer)
-                                            <option value="{{ $manufacturer->id }}"> {{ $manufacturer->id }} {{ $manufacturer->manufacturerName }}</option>
-                                            @endforeach
-                                    </select>
-                                <span class="text-danger">{{ $errors->has('manufacturerId') ? $errors->first('manufacturerId') : ''}} </span>
+                                <input type="number" name="unit" id="unit" class="form-control" value="{{ $order->unit }}">
+                                <span class="text-danger">{{ $errors->has('unit') ? $errors->first('unit') : ''}} </span>
                             </div>
                         </div>
-
                         <div class="form-group">
-                            <label>Publication Status:</label>
+                            <label>Subtotal:</label>
 
-                            <div class="input-group col-sm-6">
+                            <div class="input-group col-sm-8">
                                 <div class="input-group-addon">
                                     <i class="fa fa-gg"></i>
                                 </div>
-                                <select class="form-control select2" name="publicationStatus" id="publicationStatus">
-                                    <option value="0"> --- Select Publication Status --- </option>
-                                    <option value="1">Published</option>
-                                    <option value="2">Unpublished</option>
-                                </select>
-                                <span class="text-danger">{{ $errors->has('publicationStatus') ? $errors->first('publicationStatus') : ''}} </span>
+                                <input type="number" name="subTotal" id="subTotal" class="form-control" value="{{ $order->subTotal }}">
+                                <span class="text-danger">{{ $errors->has('subTotal') ? $errors->first('subTotal') : ''}} </span>
                             </div>
                         </div>
+                        <div class="form-group">
+                            <label>Flat Discount:</label>
+
+                            <div class="input-group col-sm-8">
+                                <div class="input-group-addon">
+                                    <i class="fa fa-gg"></i>
+                                </div>
+                                <input type="number" name="flatDiscount" id="flatDiscount" class="form-control" value="{{ $order->flatDiscount }}">
+                                <span class="text-danger">{{ $errors->has('flatDiscount') ? $errors->first('flatDiscount') : ''}} </span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Payable:</label>
+
+                            <div class="input-group col-sm-8">
+                                <div class="input-group-addon">
+                                    <i class="fa fa-gg"></i>
+                                </div>
+                                <input type="number" name="payable" id="payable" class="form-control" value="{{ $order->payable }}">
+                                <span class="text-danger">{{ $errors->has('payable') ? $errors->first('payable') : ''}} </span>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Paid:</label>
+
+                            <div class="input-group col-sm-8">
+                                <div class="input-group-addon">
+                                    <i class="fa fa-gg"></i>
+                                </div>
+                                <input type="number" name="paid" id="paid" class="form-control" value="{{ $order->paid }}">
+                                <span class="text-danger">{{ $errors->has('paid') ? $errors->first('paid') : ''}} </span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Due:</label>
+
+                            <div class="input-group col-sm-8">
+                                <div class="input-group-addon">
+                                    <i class="fa fa-gg"></i>
+                                </div>
+                                <input type="number" name="due" id="due" class="form-control" value="{{ $order->due }}">
+                                <span class="text-danger">{{ $errors->has('due') ? $errors->first('due') : ''}} </span>
+                            </div>
+                        </div>
+                        
                     </div>
                 </div>
             </div>
             <!-- /.col (left) -->
+            <div class="col-md-6">
+                <div class="box box-danger">
+                    <div class="box-body">
+                        
+                        <div class="form-group">
+                            <label>Product Details:</label>
+                            <div class="input-group col-sm-6" id="productDetails">
+                                
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Customer Details:</label>
+                            <div class="input-group col-sm-6" id="customerDetails">
+                                
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Project:</label>
+                            <div class="input-group col-sm-6">
+                                <div class="input-group-addon">
+                                    <i class="fa fa-gg"></i>
+                                </div>
+                                <select class=" form-control select2" name="projectId" id="projectId">
+                                            <option value="0"> --- Select Project --- </option>
+                                            <option value="1">Master Project</option>
+                                        </select>
+                                <span class="text-danger">{{ $errors->has('projectId') ? $errors->first('projectId') : ''}} </span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Note:</label>
+                            <div class="input-group">
+                                <div class="form-group" style=" margin-top: 5px;">
+                                    <textarea class="textarea " name="note" value="{{ $order->note }}" placeholder="Short Note"
+                                        style="width: 100%;height: 125px; font-size: 14px; line-height: 18px; border: 1px solid #dddddd; padding: 10px;">{{ $order->note }}
+                                    </textarea>
+                                    <span class="text-danger">{{ $errors->has('note') ? $errors->first('note') : ''}} </span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
             
         </div>
         
@@ -180,10 +204,98 @@
 @endsection
 @section('myscripts')
 
+<script type="text/javascript">
+
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+        var subTotal = $("#subTotal");
+        subTotal.prop('disabled', true);
+        var unit = $("#unit");
+        var flatDiscount = $("#flatDiscount");
+        var payable = $("#payable");
+        var paid = $("#paid");
+        var due = $("#due");
+
+        var unitPrice=0;
+        var subTotalAmount=0;
+        var payableAmount=0;
+        
+        $("#unit").on('change',function(e){
+            var unit = $("#unit").val();
+            subTotalAmount=unitPrice*unit;
+            subTotal.val(subTotalAmount);
+            reset();
+    });
+    flatDiscount.on('change',function(e){
+        if(subTotalAmount>flatDiscount.val()){
+            payableAmount = subTotalAmount - flatDiscount.val();
+            payable.val(payableAmount);
+            payable.prop('disabled',true);
+        }else{
+            alert("Sub Total Amount less than Discount amount. please check total amount first.");
+            flatDiscount.val(0);
+            reset();
+        }
+    });
+
+    $("#paid").on('change',function(e){
+        dueAmount = payableAmount - paid.val();
+        due.val(dueAmount);
+        due.prop('disabled',true);
+    });
+
+    $("#productId").on('change',function(e){
+        var productId = $("#productId").val();
+        $.ajax({
+           type:'POST',
+           url:"{{ url('/sales/productById') }}",
+           data:{'id': productId, '_token': $('input[name="token"]').val()},
+           success:function(data){
+            console.log(data);
+            $("#productDetails").html("Name: "+data[0].name+"<br>Code: "+data[0].code+"<br>Purchase Price: "+data[0].purchasePrice+"<br>Sale price: "+data[0].salesPrice+"<br>Product Quantity: "+data[0].productQuantity);
+            unitPrice = data[0].salesPrice;
+            // var unit = $("#unit").val();
+            // subTotal.val(unitPrice*unit);
+            unit.val(0);
+            reset();
+        }
+        });
+    });
+
+    $("#customerId").on('change',function(e){
+        
+        var customerId = $("#customerId").val();
+        $.ajax({
+           type:'POST',
+           url:"{{ url('/sales/customerById') }}",
+           data:{'id': customerId, '_token': $('input[name="token"]').val()},
+           success:function(data){
+            console.log(data);
+            $("#customerDetails").html(data[0].name+"<br>"+data[0].address+"<br>"+data[0].phoneNumber);
+           }
+        });
+
+    });
+
+    function reset(){
+        flatDiscount.val(0);
+            payable.val(0);
+            paid.val(0);
+            due.val(0);
+    }
+</script>
+
 <script>
-    
-    document.getElementById('categoryId').value = {{ $product->categoryId }};
-    document.getElementById('manufacturerId').value = {{ $product->manufacturerId }};
-    document.getElementById('publicationStatus').value = {{ $product->publicationStatus }};
+    document.getElementById('productId').value = {{ $order->productId }};
+    document.getElementById('customerId').value = {{ $order->customerId }};
+    document.getElementById('projectId').value = {{ $order->projectId }};
+    const customerDetails = JSON.parse(' {!! $order->customerDetails !!} ');
+    const productDetails = JSON.parse(' {!! $order->productDetails !!} ');
+    $("#customerDetails").html(customerDetails.name+"<br>"+customerDetails.address+"<br>"+customerDetails.phoneNumber);
+    $("#productDetails").html("Name: "+productDetails.name+"<br>Code: "+productDetails.code+"<br>Purchase Price: "+productDetails.purchasePrice+"<br>Sale price: "+productDetails.salesPrice+"<br>Product Quantity: "+productDetails.productQuantity);
 </script>
 @endsection
+

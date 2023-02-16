@@ -15,6 +15,15 @@ return new class extends Migration
     {
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
+            $table->string('name');
+            $table->integer('customerId')->default(0);
+            $table->integer('productId')->default(0);
+            $table->integer('projectId')->default(0);
+            $table->text('note')->nullable();
+            $table->string('paymentMethode')->nullable();
+            $table->decimal('amount', 7, 2)->default(0);
+            $table->string('reference')->nullable();
+            $table->string('phoneNumber')->nullable();
             $table->timestamps();
         });
     }

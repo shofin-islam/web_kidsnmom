@@ -66,26 +66,24 @@ class ProductOrderController extends Controller
 
         $pId = $request->productId;
         $cId = $request->customerId;
-        
-
         $productInfo = Product::where('id', $pId )->first();
         $customerInfo = Customer::where('id', $cId)->first();
 
         $unit = $request->unit;
-        $subTotal = $unit*$productInfo->salesPrice;
+        $unitPrice = $productInfo->salesPrice;
+        $productCode = $productInfo->productCode;
+        $subTotal = $unit*$unitPrice;
         $payble=$subTotal-$request->flatDiscount;
         $productOrder = new ProductOrder();
 
         $productOrder->productId = $request->productId;
         $productOrder->customerId = $request->customerId;
+        $productOrder->code = $productCode;
         $productOrder->unit = $unit;
-        $subTotal = $subTotal;
-        // $productOrder->customerDetails = json_encode(Response::json($customerInfo));
-        // $productOrder->productDetails = json_encode(Response::json($productInfo));
-
+        $productOrder->unitPrice = $unitPrice;
+        $productOrder->subTotal = $subTotal;
         $productOrder->customerDetails = json_encode($customerInfo);
         $productOrder->productDetails = json_encode($productInfo);
-
         $productOrder->projectId = $request->projectId;
         $productOrder->flatDiscount = $request->flatDiscount;
         $productOrder->payable = $payble;
@@ -137,9 +135,19 @@ class ProductOrderController extends Controller
      * @param  \App\Models\ProductOrder  $productOrder
      * @return \Illuminate\Http\Response
      */
-    public function edit(ProductOrder $productOrder)
+    public function edit($id)
     {
-        //
+        
+        $order = ProductOrder::select(
+            'product_orders.*')
+        ->where('product_orders.id',$id)
+        ->first();
+
+        $products = Product::where('publicationStatus', 1)->get();
+        $customers = Customer::where('publicationStatus', 1)->get();
+
+        return view('productOrder.edit',['order' => $order,'products' => $products, 'customers' => $customers]);
+
     }
 
     /**

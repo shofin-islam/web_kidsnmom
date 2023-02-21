@@ -283,6 +283,7 @@
             payable.val(0);
             paid.val(0);
             due.val(0);
+            subTotal.val(0);
     }
 </script>
 @endsection

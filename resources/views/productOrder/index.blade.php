@@ -109,6 +109,7 @@
                     <table id="example1" class="table table-bordered table-striped">
                 <thead>
                     <tr>
+                        <th>#</th>
                         <th>Product Name</th>
                         <th>Code</th>
                         <th>Customer Name</th>
@@ -123,6 +124,7 @@
                 <tbody>
                     @foreach($orders as $order)
                     <tr>
+                        <td>{{ $order->id }}</td>
                         <td>{{ $order->productName }}</td>
                         <td>{{ $order->productCode }}</td>
                         <td>{{ $order->customerName }}</td>
@@ -132,7 +134,6 @@
                         <td>{{ $order->paid }}</td>
                         <td>{{ $order->due }}</td>
                         <td>
-                        {{$order->id}}
                             <a href="{{ route('sales.show',$order->id) }}" class="btn btn-info" title="View"><span class="glyphicon glyphicon-zoom-in"></span>
                             </a>
                             <a href="{{ route('sales.edit',$order->id) }}" class="btn btn-success" title="Edit">

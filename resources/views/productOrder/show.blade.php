@@ -47,27 +47,27 @@
                                     <th>{{ $order->customerDetails }}</th>
                                 </tr>
                                 <tr>
-                                    <th>Manufacturer Name</th>
+                                    <th>Customers Contact</th>
                                     <th>{{ $order->CustomersContact }}</th>
                                 </tr>
                                 <tr>
-                                    <th>Product Quantity</th>
+                                    <th>Order Unit</th>
                                     <th>{{ $order->unit }}</th>
                                 </tr>
                                 <tr>
-                                    <th>Purchase Price </th>
+                                    <th>Payable Amount </th>
                                     <th>{{ $order->payable }}</th>
                                 </tr>
                                 <tr>
-                                    <th>Sales Price </th>
+                                    <th>Paid Amount </th>
                                     <th>{{ $order->paid }}</th>
                                 </tr>
                                 <tr>
-                                    <th>Product Description</th>
+                                    <th>Due Amount</th>
                                     <th>{{ $order->due }}</th>
                                 </tr>
                                 <tr>
-                                    <th>Publication Status</th>
+                                    <th>Sales Note</th>
                                     <th>{{ $order->note}}</th>
                                 </tr>
                             </tbody>

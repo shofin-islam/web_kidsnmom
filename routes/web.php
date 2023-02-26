@@ -9,6 +9,7 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ExpenseTypeController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\ProductOrderController;
+use Spatie\Activitylog\Models\Activity;
 
 
 /*
@@ -73,3 +74,9 @@ Route::group(['middleware' => ['auth']], function() {
     Route::post('/sales/customerById', [ProductOrderController::class, 'customerById']);
     Route::resource('sales', ProductOrderController::class);
 });
+
+Route::get('/logs', function () {
+    return Activity::where([
+        ['subject_type', '=', 'App\Models\ProductOrder'],
+        ['subject_id', '=', '6']])->get();
+})->middleware(['auth', 'verified'])->name('logs');

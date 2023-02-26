@@ -213,39 +213,42 @@
     });
         var subTotal = $("#subTotal");
         subTotal.prop('disabled', true);
+        var payable = $("#payable");
+        payable.prop('disabled',true);
         var unit = $("#unit");
         var flatDiscount = $("#flatDiscount");
-        var payable = $("#payable");
         var paid = $("#paid");
         var due = $("#due");
-
+        due.prop('disabled',true);
         var unitPrice=0;
         var subTotalAmount=0;
         var payableAmount=0;
-        
-        $("#unit").on('change',function(e){
-            var unit = $("#unit").val();
-            subTotalAmount=unitPrice*unit;
-            subTotal.val(subTotalAmount);
-            reset();
-    });
-    flatDiscount.on('change',function(e){
-        if(subTotalAmount>flatDiscount.val()){
-            payableAmount = subTotalAmount - flatDiscount.val();
-            payable.val(payableAmount);
-            payable.prop('disabled',true);
-        }else{
-            alert("Sub Total Amount less than Discount amount. please check total amount first.");
-            flatDiscount.val(0);
-            reset();
-        }
-    });
 
-    $("#paid").on('change',function(e){
-        dueAmount = payableAmount - paid.val();
-        due.val(dueAmount);
-        due.prop('disabled',true);
-    });
+        reset();
+        
+        unit.on('change',function(e){
+            if(unit.val()<=0){
+                alert("Invalid Unit!")
+            }else{
+                calculate();
+            }
+              
+        });
+        flatDiscount.on('change',function(e){
+            if(flatDiscount.val()<=0){
+                alert("Invalid Discount Amount!")
+            }else{
+                calculate();
+            }
+        });
+
+        paid.on('change',function(e){
+            if(paid.val()<=0){
+                alert("Invalid Paid Amount!")
+            }else{
+                calculate();
+            }
+        });
 
     $("#productId").on('change',function(e){
         var productId = $("#productId").val();
@@ -257,7 +260,6 @@
             console.log(data);
             $("#productDetails").html("Name: "+data[0].name+"<br>Code: "+data[0].code+"<br>Purchase Price: "+data[0].purchasePrice+"<br>Sale price: "+data[0].salesPrice+"<br>Product Quantity: "+data[0].productQuantity);
             unitPrice = data[0].salesPrice;
-            unit.val(0);
             reset();
         }
         });
@@ -279,12 +281,44 @@
     });
 
     function reset(){
-        flatDiscount.val(0);
+            subTotalAmount=0;
+            payableAmount=0;
+            unit.val(0);
+            flatDiscount.val(0);
             payable.val(0);
             paid.val(0);
             due.val(0);
             subTotal.val(0);
+            payable.val(0);
     }
+
+    function calculate(){
+
+            flatDiscountAmount=flatDiscount.val();
+            unitValue = unit.val()
+            subTotalAmount = unitPrice*unitValue;
+            payableAmount = subTotalAmount-flatDiscountAmount;
+            paidAmount=paid.val();
+
+            if(unitPrice<=0){
+                alert("Invalid Unit Price, Select a product first!");
+                reset();
+            }else if(unitValue<=0){
+                alert("Invalid Unit, Check the unit first!");
+                reset();
+            }else if(subTotalAmount<flatDiscountAmount){  
+                alert("Discount amount is greater than sub total Amount!");
+                reset();
+            }else if(payableAmount<paidAmount){  
+                alert("Paid amount is greater than payable amount!");
+                reset();
+            }else{
+                subTotal.val(subTotalAmount);
+                payable.val(payableAmount);
+                due.val(payableAmount-paidAmount);
+            }
+    }
+
 </script>
 @endsection
 

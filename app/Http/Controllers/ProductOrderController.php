@@ -30,7 +30,9 @@ class ProductOrderController extends Controller
         )
         ->join('products as p', 'p.id', '=', 'product_orders.productId')
         ->join('customers as c', 'c.id', '=', 'product_orders.customerId')
+        ->orderBy('id', 'asc')
         ->paginate(100);
+
     return view('productOrder.index',compact('orders')); 
     }
 
@@ -59,9 +61,12 @@ class ProductOrderController extends Controller
             'productId' => 'required|not_in:0',
             'customerId' => 'required|not_in:0',
             'projectId' => 'required|not_in:0',
-            'unit' => 'required|min:1',
-            'flatDiscount' => 'required|numeric',
-            'paid' => 'required|numeric',
+            'unit' => 'required|min:1|numeric|gt:0',
+            'flatDiscount' => 'required|numeric|between:0,999999999',
+            'paid' => 'required|numeric|min:0|between:0,999999999',
+            'payable' => 'numeric|min:0|between:0,999999999',
+            'due' => 'numeric|min:0',
+            'subTotal' => 'numeric|gt:0',
         ]);
 
         $pId = $request->productId;
@@ -78,7 +83,6 @@ class ProductOrderController extends Controller
 
         $productOrder->productId = $request->productId;
         $productOrder->customerId = $request->customerId;
-        $productOrder->code = $productCode;
         $productOrder->unit = $unit;
         $productOrder->unitPrice = $unitPrice;
         $productOrder->subTotal = $subTotal;
@@ -118,6 +122,7 @@ class ProductOrderController extends Controller
         $order = ProductOrder::select(
             'product_orders.*',
             'p.name as productName',
+            'p.productCode as productCode',
             'c.name as customerName',
             'c.phoneNumber as CustomersContact'
         )
@@ -126,6 +131,8 @@ class ProductOrderController extends Controller
         ->where('product_orders.id',$id)
         ->first();
         // return Response::json($order);
+
+        dd($order);
         return view('productOrder.show',compact('order')); 
     }
 
@@ -157,9 +164,50 @@ class ProductOrderController extends Controller
      * @param  \App\Models\ProductOrder  $productOrder
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, ProductOrder $productOrder)
+    public function update(Request $request, $id)
     {
-        //
+        request()->validate([
+
+            'productId' => 'required|not_in:0',
+            'customerId' => 'required|not_in:0',
+            'projectId' => 'required|not_in:0',
+            'unit' => 'required|min:1|numeric|gt:0',
+            'flatDiscount' => 'required|numeric|between:0,999999999',
+            'paid' => 'required|numeric|min:0|between:0,999999999',
+            'payable' => 'numeric|min:0|between:0,999999999',
+            'due' => 'numeric|min:0',
+            'subTotal' => 'numeric|gt:0',
+        ]);
+        
+        $pId = $request->productId;
+        $cId = $request->customerId;
+        $productInfo = Product::where('id', $pId )->first();
+        $customerInfo = Customer::where('id', $cId)->first();
+
+        $unit = $request->unit;
+        $unitPrice = $productInfo->salesPrice;
+        $productCode = $productInfo->productCode;
+        $subTotal = $unit*$unitPrice;
+        $payble=$subTotal-$request->flatDiscount;
+
+        $productOrder = ProductOrder::find($id);
+        // dd($productOrder);
+        $productOrder->productId = $request->productId;
+        $productOrder->customerId = $request->customerId;
+        $productOrder->unit = $unit;
+        $productOrder->unitPrice = $unitPrice;
+        $productOrder->subTotal = $subTotal;
+        $productOrder->customerDetails = json_encode($customerInfo);
+        $productOrder->productDetails = json_encode($productInfo);
+        $productOrder->projectId = $request->projectId;
+        $productOrder->flatDiscount = $request->flatDiscount;
+        $productOrder->payable = $payble;
+        $productOrder->paid = $request->paid;
+        $productOrder->due = $payble-$request->paid;
+        $productOrder->note = $request->note;
+        $productOrder->save();
+
+        return redirect()->route('sales.index')->with('success','Order Updated Successfully.');
     }
 
     /**
@@ -168,8 +216,12 @@ class ProductOrderController extends Controller
      * @param  \App\Models\ProductOrder  $productOrder
      * @return \Illuminate\Http\Response
      */
-    public function destroy(ProductOrder $productOrder)
+    public function destroy($id)
     {
-        //
+        // dd($id);
+        $productOrder=ProductOrder::find($id);
+        $productOrder->deletionStatus = 1;
+        $productOrder->save();
+        return redirect()->route('sales.index')->with('success','Order deleted successfully') ;
     }
 }

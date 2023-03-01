@@ -67,6 +67,7 @@
             </li>
             <li><a href="{{route('customers.index')}}"><i class="fa fa-circle-o text-red"></i> <span>Customers</span></a></li>
             <li><a href="{{route('sales.index')}}"><i class="fa fa-circle-o text-red"></i> <span>Sales</span></a></li>
+            <li><a href="{{route('payment.index')}}"><i class="fa fa-circle-o text-red"></i> <span>Payment</span></a></li>
             <li class="treeview">
                 <a href="#">
                     <i class="fa fa-gear"></i> <span>Reporting</span>

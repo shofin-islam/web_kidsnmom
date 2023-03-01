@@ -8,6 +8,8 @@ use App\Models\Customer;
 use Illuminate\Http\Request;
 use Response;
 use DB;
+use Spatie\Activitylog\Models\Activity;
+
 class ProductOrderController extends Controller
 {
     /**
@@ -131,9 +133,14 @@ class ProductOrderController extends Controller
         ->where('product_orders.id',$id)
         ->first();
         // return Response::json($order);
-
-        dd($order);
-        return view('productOrder.show',compact('order')); 
+        $logs= Activity::where([
+            ['log_name', '=', 'productOrder'],
+            ['subject_id', '=', $id]])->get();
+    //   dd($logs)
+            foreach($logs as $log){
+                echo $log->changes().'<br>==============<br>';
+      }
+        // return view('productOrder.show',compact('order')); 
     }
 
     /**

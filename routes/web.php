@@ -9,6 +9,7 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ExpenseTypeController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\ProductOrderController;
+use App\Http\Controllers\PaymentController;
 use Spatie\Activitylog\Models\Activity;
 
 
@@ -73,6 +74,7 @@ Route::group(['middleware' => ['auth']], function() {
     Route::post('/sales/productById', [ProductOrderController::class, 'productById']);
     Route::post('/sales/customerById', [ProductOrderController::class, 'customerById']);
     Route::resource('sales', ProductOrderController::class);
+    Route::resource('payment', PaymentController::class);
 });
 
 Route::get('/logs', function () {

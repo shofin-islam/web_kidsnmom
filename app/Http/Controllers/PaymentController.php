@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Payment;
 use Illuminate\Http\Request;
+use App\Models\Product;
+use App\Models\Customer;
 
 class PaymentController extends Controller
 {
@@ -14,7 +16,18 @@ class PaymentController extends Controller
      */
     public function index()
     {
-        //
+        
+        $payments = Payment::select(
+            'payments.*', 
+            'p.name',
+            'c.name',
+        )
+        ->join('products as p', 'p.id', '=', 'payments.productId')
+        ->join('customers as c', 'c.id', '=', 'payments.customerId')
+        ->orderBy('id', 'asc')
+        ->paginate(100);
+
+    return view('payment.index',compact('payments')); 
     }
 
     /**
@@ -24,7 +37,9 @@ class PaymentController extends Controller
      */
     public function create()
     {
-        //
+        $products = Product::where('publicationStatus', 1)->get();
+        $customers = Customer::where('publicationStatus', 1)->get();
+        return view('payment.create',['products' => $products, 'customers' => $customers]);
     }
 
     /**

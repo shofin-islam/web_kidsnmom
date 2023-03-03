@@ -79,13 +79,10 @@
                                     <i class="fa fa-gg"></i>
                                 </div>
                                 <select class=" form-control select2" name="paymentMethod" id="paymentMethod">
-                                            <option value="0"> --- Select Category Name --- </option>
-                                            <option value="1">Cash</option>
-                                            <option value="2">Cheque</option>
-                                            <option value="3">bKash</option>
-                                            <option value="4">Nagad</option>
-                                            <option value="5">Roket</option>
-                                            <option value="6">Others</option>
+                                            <option value="0"> --- Select Method Name --- </option>
+                                            @foreach($methods as $method)
+                                            <option value="{{ $method->id }}">{{ $method->methodName }}</option>
+                                            @endforeach
                                         </select>
                                 <span class="text-danger">{{ $errors->has('paymentMethod') ? $errors->first('paymentMethod') : ''}} </span>
                             </div>
@@ -112,7 +109,6 @@
                         </div>
                         <div class="form-group">
                             <label>Phone Number:</label>
-
                             <div class="input-group col-sm-6">
                                 <div class="input-group-addon">
                                     <i class="fa fa-gg"></i>
@@ -192,45 +188,7 @@
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         }
     });
-        var subTotal = $("#subTotal");
-        subTotal.prop('disabled', true);
-        var payable = $("#payable");
-        payable.prop('disabled',true);
-        var unit = $("#unit");
-        var flatDiscount = $("#flatDiscount");
-        var paid = $("#paid");
-        var due = $("#due");
-        due.prop('disabled',true);
-        var unitPrice=0;
-        var subTotalAmount=0;
-        var payableAmount=0;
-
-        reset();
         
-        unit.on('change',function(e){
-            if(unit.val()<=0){
-                alert("Invalid Unit!")
-            }else{
-                calculate();
-            }
-              
-        });
-        flatDiscount.on('change',function(e){
-            if(flatDiscount.val()<=0){
-                alert("Invalid Discount Amount!")
-            }else{
-                calculate();
-            }
-        });
-
-        paid.on('change',function(e){
-            if(paid.val()<=0){
-                alert("Invalid Paid Amount!")
-            }else{
-                calculate();
-            }
-        });
-
     $("#productId").on('change',function(e){
         var productId = $("#productId").val();
         $.ajax({
@@ -260,45 +218,6 @@
         });
 
     });
-
-    function reset(){
-            subTotalAmount=0;
-            payableAmount=0;
-            unit.val(0);
-            flatDiscount.val(0);
-            payable.val(0);
-            paid.val(0);
-            due.val(0);
-            subTotal.val(0);
-            payable.val(0);
-    }
-
-    function calculate(){
-
-            flatDiscountAmount=flatDiscount.val();
-            unitValue = unit.val()
-            subTotalAmount = unitPrice*unitValue;
-            payableAmount = subTotalAmount-flatDiscountAmount;
-            paidAmount=paid.val();
-
-            if(unitPrice<=0){
-                alert("Invalid Unit Price, Select a product first!");
-                reset();
-            }else if(unitValue<=0){
-                alert("Invalid Unit, Check the unit first!");
-                reset();
-            }else if(subTotalAmount<flatDiscountAmount){  
-                alert("Discount amount is greater than sub total Amount!");
-                reset();
-            }else if(payableAmount<paidAmount){  
-                alert("Paid amount is greater than payable amount!");
-                reset();
-            }else{
-                subTotal.val(subTotalAmount);
-                payable.val(payableAmount);
-                due.val(payableAmount-paidAmount);
-            }
-    }
 
 </script>
 @endsection

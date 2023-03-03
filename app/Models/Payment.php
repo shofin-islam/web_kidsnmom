@@ -19,7 +19,7 @@ class Payment extends Model
         ->useLogName('payment')
         ->setDescriptionForEvent(fn(string $eventName) => "Payment has been {$eventName}")
         ->logOnlyDirty()
-        ->logOnly(['productId', 'productDetails','projectId', 'customerId','customerDetails','unitPrice','unit','subTotal','flatDiscount','payable','paid','due','note']);
+        ->logOnly(['customerId', 'productId','projectId','note','paymentMethod','amount','reference','phoneNumber']);
         // Chain fluent methods for configuration options
     }
    

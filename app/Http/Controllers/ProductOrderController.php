@@ -132,15 +132,16 @@ class ProductOrderController extends Controller
         ->join('customers as c', 'c.id', '=', 'product_orders.customerId')
         ->where('product_orders.id',$id)
         ->first();
-        // return Response::json($order);
-        $logs= Activity::where([
-            ['log_name', '=', 'productOrder'],
-            ['subject_id', '=', $id]])->get();
-    //   dd($logs)
-            foreach($logs as $log){
-                echo $log->changes().'<br>==============<br>';
-      }
-        // return view('productOrder.show',compact('order')); 
+        
+        // to show activity log
+            // $logs= Activity::where([
+            // ['log_name', '=', 'productOrder'],
+            // ['subject_id', '=', $id]])->get();
+
+            // foreach($logs as $log){
+            //     echo $log->changes().'<br>==============<br>';
+            // }
+        return view('productOrder.show',compact('order')); 
     }
 
     /**

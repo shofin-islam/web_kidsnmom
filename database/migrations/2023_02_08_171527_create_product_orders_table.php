@@ -20,13 +20,13 @@ return new class extends Migration
             $table->integer('projectId')->default(0);
             $table->integer('customerId')->default(0);
             $table->text('customerDetails')->nullable();
-            $table->decimal('unitPrice', 7, 2)->default(0);
+            $table->float('unitPrice', 10, 2)->default(0);
             $table->integer('unit')->default(0);
             $table->float('subTotal',10,2)->default(0);
-            $table->decimal('flatDiscount', 7, 2)->default(0);
-            $table->decimal('payable', 7, 2)->default(0);
-            $table->decimal('paid', 7, 2)->default(0);
-            $table->decimal('due', 7, 2)->default(0);
+            $table->float('flatDiscount', 10, 2)->default(0);
+            $table->float('payable', 10, 2)->default(0);
+            $table->float('paid', 10, 2)->default(0);
+            $table->float('due', 10, 2)->default(0);
             $table->text('note')->nullable();
             $table->tinyInteger('deletionStatus')->default(0);
             $table->timestamps();

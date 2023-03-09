@@ -139,7 +139,11 @@
                             <a href="{{ route('sales.edit',$order->id) }}" class="btn btn-success" title="Edit">
                              <span class="glyphicon glyphicon-edit"></span>
                             </a>
-                            
+                            @if($order->due>0)
+                            <a href="{{ route('sales.edit',$order->id) }}" class="btn btn-success" title="Pay">
+                             <span class="glyphicon glyphicon-plus-sign"></span>
+                            </a>
+                            @endif
                             <form action="{{ route('sales.destroy',$order->id) }}" method="POST">
                             @csrf
 

@@ -7,9 +7,26 @@ use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Customer;
 use App\Models\PaymentMethod;
+use App\Models\ProductOrder;
+use Illuminate\Support\Facades\Validator;
 
 class PaymentController extends Controller
 {
+
+    function __construct()
+
+    {
+
+         $this->middleware('permission:payment-list|payment-create|payment-edit|payment-delete', ['only' => ['index','show']]);
+
+         $this->middleware('permission:payment-create', ['only' => ['create','store']]);
+
+         $this->middleware('permission:payment-edit', ['only' => ['edit','update']]);
+
+         $this->middleware('permission:payment-delete', ['only' => ['destroy']]);
+
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -40,10 +57,17 @@ class PaymentController extends Controller
      */
     public function create()
     {
-        $products = Product::where('publicationStatus', 1)->get();
-        $customers = Customer::where('publicationStatus', 1)->get();
+        $productOrders = ProductOrder::select(
+                        'product_orders.id',
+                        'product_orders.due',
+                        'p.name as productName',
+                        'c.name as customerName'
+                    )
+                    ->join('products as p', 'p.id', '=', 'product_orders.productId')
+                    ->join('customers as c', 'c.id', '=', 'product_orders.customerId')
+                    ->get();
         $methods = PaymentMethod::where('publicationStatus', 1)->get();
-        return view('payment.create',['products' => $products, 'customers' => $customers,'methods' => $methods]);
+        return view('payment.create',['methods' => $methods,'orders'=>$productOrders]);
     }
 
     /**
@@ -54,20 +78,30 @@ class PaymentController extends Controller
      */
     public function store(Request $request)
     {
-        request()->validate([
 
-            'productId' => 'required|not_in:0',
-            'customerId' => 'required|not_in:0',
+        $products = ProductOrder::where('id', $request->orderId)->first();
+        
+        request()->validate([
+            'orderId' => 'required|not_in:0',
             'projectId' => 'required|not_in:0',
-            'amount' => 'numeric|min:0|between:1,999999999',
+            // 'amount' => 'numeric|min:0|between:1,999999999',
+            'amount' => ['required','integer', function ($attribute, $value, $fail)use ($products) {
+                   $due=$products->due;
+                    if ($value > $due) {
+                         $fail($attribute.' could not be more than due.');
+                    }
+              }],
             'paymentMethod' => 'required|not_in:0',
             'phoneNumber' => 'required|digits:11',
         ]);
 
         $payment = new Payment();
 
-        $payment->productId = $request->productId;
-        $payment->customerId = $request->customerId;
+        $payment->orderId = $request->orderId;
+
+        $payment->productId = $products->productId;
+        $payment->customerId = $products->customerId;
+
         $payment->projectId = $request->projectId;
         $payment->paymentMethod = $request->paymentMethod;
         $payment->amount = $request->amount;
@@ -75,7 +109,6 @@ class PaymentController extends Controller
         $payment->phoneNumber = $request->phoneNumber;
         $payment->note = $request->note;
         $payment->save();
-
         return redirect()->route('payment.index')->with('success','payment placed successfully.');
     }
 
@@ -119,14 +152,31 @@ class PaymentController extends Controller
     public function edit($id)
     {
         $payment = Payment::where('id',$id)->first();
-        $customerInfo = Customer::where('id', $payment->customerId)->first();
-        $customerInfoById=json_encode($customerInfo);
-        $productInfo = Product::where('id', $payment->productId )->first();
-        $productDetails=json_encode($productInfo);
-        $products = Product::where('publicationStatus', 1)->get();
-        $customers = Customer::where('publicationStatus', 1)->get();
+
+        $productOrders = ProductOrder::select(
+            'product_orders.id',
+            'product_orders.due',
+            'p.name as productName',
+            'c.name as customerName'
+        )
+        ->join('products as p', 'p.id', '=', 'product_orders.productId')
+        ->join('customers as c', 'c.id', '=', 'product_orders.customerId')
+        ->get();
+
+        $products = ProductOrder::where('id', $payment->orderId)->first();
+        $productDetails =json_decode($products->productDetails);
+        $customerDetails =json_decode($products->customerDetails);
+        $data= array(
+            "pName" => $productDetails->name,
+            "cName" => $customerDetails->name,
+            "cPhoneNumber" => $customerDetails->phoneNumber,
+            "payable" => $products->payable,
+            "paid" => $products->paid,
+            "due" => $products->due
+          );
+        $orderDetails = json_encode($data);
         $methods = PaymentMethod::where('publicationStatus', 1)->get();
-        return view('payment.edit',['productDetails' => $productDetails,'customerInfoById' => $customerInfoById,'paymentById' => $payment,'products' => $products, 'customers' => $customers,'methods' => $methods]);
+        return view('payment.edit',['orders' => $productOrders,'orderDetails' => $orderDetails,'paymentById' => $payment,'methods' => $methods]);
     }
 
     /**
@@ -138,19 +188,27 @@ class PaymentController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $products = ProductOrder::where('id', $request->orderId)->first();
+        
         request()->validate([
-            'productId' => 'required|not_in:0',
-            'customerId' => 'required|not_in:0',
+            'orderId' => 'required|not_in:0',
             'projectId' => 'required|not_in:0',
-            'amount' => 'numeric|min:0|between:1,999999999',
+            // 'amount' => 'numeric|min:0|between:1,999999999',
+            'amount' => ['required','integer', function ($attribute, $value, $fail)use ($products) {
+                   $due=$products->due;
+                    if ($value > $due) {
+                         $fail($attribute.' could not be more than due.');
+                    }
+              }],
             'paymentMethod' => 'required|not_in:0',
             'phoneNumber' => 'required|digits:11',
         ]);
 
-        $payment = Payment::find($id);
 
-        $payment->productId = $request->productId;
-        $payment->customerId = $request->customerId;
+        $payment = Payment::find($id);
+        $payment->orderId = $request->orderId;
+        $payment->productId = $products->productId;
+        $payment->customerId = $products->customerId;
         $payment->projectId = $request->projectId;
         $payment->paymentMethod = $request->paymentMethod;
         $payment->amount = $request->amount;

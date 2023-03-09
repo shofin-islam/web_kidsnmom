@@ -101,6 +101,27 @@
                             </div>
                         </div>
                         <div class="form-group">
+                            <label>Total Amount:</label>
+
+                            <div class="input-group col-sm-6">
+                                <div class="input-group-addon">
+                                    <i class="fa fa-gg"></i>
+                                </div>
+                                <input type="number" name="totalAmount" class="form-control" value="{{ old('totalAmount') }}">
+                                <span class="text-danger">{{ $errors->has('totalAmount') ? $errors->first('totalAmount') : ''}} </span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Due Amount:</label>
+                            <div class="input-group col-sm-6">
+                                <div class="input-group-addon">
+                                    <i class="fa fa-gg"></i>
+                                </div>
+                                <input type="number" name="dueAmount" class="form-control" value="{{ old('dueAmount') }}">
+                                <span class="text-danger">{{ $errors->has('dueAmount') ? $errors->first('dueAmount') : ''}} </span>
+                            </div>
+                        </div>
+                        <div class="form-group">
                             <label>Product Description:</label>
 
                             <div class="input-group">

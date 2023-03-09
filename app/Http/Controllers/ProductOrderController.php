@@ -9,9 +9,25 @@ use Illuminate\Http\Request;
 use Response;
 use DB;
 use Spatie\Activitylog\Models\Activity;
+use Illuminate\Support\Facades\Validator;
 
 class ProductOrderController extends Controller
 {
+
+    function __construct()
+
+    {
+
+         $this->middleware('permission:product-order-list|product-order-create|product-order-edit|product-order-delete', ['only' => ['index','show']]);
+
+         $this->middleware('permission:product-order-create', ['only' => ['create','store']]);
+
+         $this->middleware('permission:product-order-edit', ['only' => ['edit','update']]);
+
+         $this->middleware('permission:product-order-delete', ['only' => ['destroy']]);
+
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -58,12 +74,18 @@ class ProductOrderController extends Controller
      */
     public function store(Request $request)
     {
+        $productById = Product::find($request->productId);
+        // dd($productById->productQuantity);
         request()->validate([
-
             'productId' => 'required|not_in:0',
             'customerId' => 'required|not_in:0',
             'projectId' => 'required|not_in:0',
-            'unit' => 'required|min:1|numeric|gt:0',
+            'unit' => ['required','min:1','numeric', function ($attribute, $value, $fail)use ($productById) {
+                $available = $productById->productQuantity;
+                if ($value > $available ) {
+                      $fail($attribute.' not available.');
+                 }
+           }],
             'flatDiscount' => 'required|numeric|between:0,999999999',
             'paid' => 'required|numeric|min:0|between:0,999999999',
             'payable' => 'numeric|min:0|between:0,999999999',
@@ -98,6 +120,11 @@ class ProductOrderController extends Controller
         $productOrder->note = $request->note;
         $productOrder->save();
         
+        $availableUnit = $productById->productQuantity;
+        $latestUnit=$availableUnit-$unit;
+        $productById->productQuantity = $latestUnit;
+        $productById->save();
+
         return redirect()->route('sales.index')->with('success','Order created successfully.');
     }
 
@@ -111,6 +138,22 @@ class ProductOrderController extends Controller
     {
         $customer = Customer::where('id', $request->id)->get();
         return Response::json($customer);
+    }
+    public function orderDetails(Request $request)
+    {
+
+        $products = ProductOrder::where('id', $request->id)->first();
+        $productDetails =json_decode($products->productDetails);
+        $customerDetails =json_decode($products->customerDetails);
+        $data= array(
+            "pName" => $productDetails->name,
+            "cName" => $customerDetails->name,
+            "cPhoneNumber" => $customerDetails->phoneNumber,
+            "payable" => $products->payable,
+            "paid" => $products->paid,
+            "due" => $products->due
+          );
+        return Response::json($data);
     }
 
     /**

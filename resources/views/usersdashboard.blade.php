@@ -34,9 +34,8 @@
       <!-- small box -->
       <div class="small-box bg-green">
         <div class="inner">
-          <h3>5%<sup style="font-size: 20px">%</sup></h3>
-
-          <p>Bounce Rate</p>
+          <h3>{{$payable}}<sup style="font-size: 20px"></sup></h3>
+          <p>Sales Amount</p>
         </div>
         <div class="icon">
           <i class="ion ion-stats-bars"></i>
@@ -49,9 +48,8 @@
       <!-- small box -->
       <div class="small-box bg-yellow">
         <div class="inner">
-          <h3>13</h3>
-
-          <p>User Registrations</p>
+          <h3>{{$total}}</h3>
+          <p>Total Expense</p>
         </div>
         <div class="icon">
           <i class="ion ion-person-add"></i>

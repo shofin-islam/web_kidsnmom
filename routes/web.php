@@ -10,6 +10,7 @@ use App\Http\Controllers\ExpenseTypeController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\ProductOrderController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\DashboardController;
 use Spatie\Activitylog\Models\Activity;
 
 
@@ -41,9 +42,19 @@ Route::get('/', function () {
 //     return view('usersdashboard');
 // })->middleware(['auth', 'verified'])->name('/');
 
-Route::get('/dashboard', function () {
-    return view('usersdashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+
+/*
+|--------------------------------------------------------------------------
+| this is the working code for auth dashboard 
+*/
+// Route::get('/dashboard', function () {
+//     return view('usersdashboard');
+// })->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::group(['middleware' => ['auth']], function() {
+
+    Route::get('/dashboard', [DashboardController::class,'getLastMonthExpense']);
+    })->middleware(['auth', 'verified']);
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -73,6 +84,7 @@ Route::group(['middleware' => ['auth']], function() {
     Route::resource('expense', ExpenseController::class);
     Route::post('/sales/productById', [ProductOrderController::class, 'productById']);
     Route::post('/sales/customerById', [ProductOrderController::class, 'customerById']);
+    Route::post('/sales/orderDetails', [ProductOrderController::class, 'orderDetails']);
     Route::resource('sales', ProductOrderController::class);
     Route::resource('payment', PaymentController::class);
 });

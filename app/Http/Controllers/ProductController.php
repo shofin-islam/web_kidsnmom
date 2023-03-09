@@ -115,9 +115,11 @@ class ProductController extends Controller
             'name' => 'required',
             'categoryId' => 'required|not_in:0',
             'manufacturerId' => 'required|not_in:0',
-            'purchasePrice' => 'required',
-            'salesPrice' => 'required',
-            'productQuantity' => 'required',
+            'purchasePrice' => 'required|numeric|between:1,999999999',
+            'salesPrice' => 'required|numeric|between:1,999999999',
+            'productQuantity' => 'required|min:1|numeric|gt:0',
+            'totalAmount' => 'required|numeric|between:0,999999999',
+            'dueAmount' => 'required|numeric|between:0,999999999',
             'publicationStatus' => 'required|not_in:0',
         ]);
 
@@ -132,6 +134,8 @@ class ProductController extends Controller
         $product->purchasePrice = $request->purchasePrice;
         $product->salesPrice = $request->salesPrice;
         $product->productQuantity = $request->productQuantity;
+        $product->totalAmount = $request->totalAmount;
+        $product->dueAmount = $request->dueAmount;
         $product->details = $request->details;
         $product->publicationStatus = $request->publicationStatus;
         $product->save();
@@ -227,9 +231,11 @@ class ProductController extends Controller
             'name' => 'required',
             'categoryId' => 'required|not_in:0',
             'manufacturerId' => 'required|not_in:0',
-            'purchasePrice' => 'required',
-            'salesPrice' => 'required',
-            'productQuantity' => 'required',
+            'purchasePrice' => 'required|numeric|between:1,999999999',
+            'salesPrice' => 'required|numeric|between:1,999999999',
+            'productQuantity' => 'required|min:1|numeric|gt:0',
+            'totalAmount' => 'required|numeric|between:0,999999999',
+            'dueAmount' => 'required|numeric|between:0,999999999',
             'publicationStatus' => 'required|not_in:0',
         ]);
         // dd($request);
@@ -242,6 +248,8 @@ class ProductController extends Controller
         $productById->purchasePrice = $request->purchasePrice;
         $productById->salesPrice = $request->salesPrice;
         $productById->productQuantity = $request->productQuantity;
+        $productById->totalAmount = $request->totalAmount;
+        $productById->dueAmount = $request->dueAmount;
         $productById->details = $request->details;
         $productById->publicationStatus = $request->publicationStatus;
         $productById->save();

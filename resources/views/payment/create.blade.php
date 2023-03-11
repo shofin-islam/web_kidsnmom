@@ -50,7 +50,7 @@
                                 <select class=" form-control select2" name="orderId" id="orderId">
                                             <option value="0"> --- Select Order --- </option>
                                             @foreach($orders as $order)
-                                            <option value="{{ $order->id }}">{{ $order->productName }}_{{ $order->customerName }}_{{ $order->due }}</option>
+                                            <option value="{{ $order->id }}">{{ $order->id }}_{{ $order->productName }}_{{ $order->customerName }}_{{ $order->due }}</option>
                                             @endforeach
                                         </select>
                                 <span class="text-danger">{{ $errors->has('orderId') ? $errors->first('orderId') : ''}} </span>

@@ -133,6 +133,7 @@
                             <a href="{{ route('payment.edit',$payment->id) }}" class="btn btn-success" title="Edit">
                              <span class="glyphicon glyphicon-edit"></span>
                             </a>
+                        </td>    
                     </tr>
                     @endforeach
                      

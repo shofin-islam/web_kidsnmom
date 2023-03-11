@@ -79,14 +79,14 @@ class PaymentController extends Controller
     public function store(Request $request)
     {
 
-        $products = ProductOrder::where('id', $request->orderId)->first();
+        $pOrder = ProductOrder::where('id', $request->orderId)->first();
         
         request()->validate([
             'orderId' => 'required|not_in:0',
             'projectId' => 'required|not_in:0',
             // 'amount' => 'numeric|min:0|between:1,999999999',
-            'amount' => ['required','integer', function ($attribute, $value, $fail)use ($products) {
-                   $due=$products->due;
+            'amount' => ['required','numeric','between:0,999999999', function ($attribute, $value, $fail)use ($pOrder) {
+                   $due=$pOrder->due;
                     if ($value > $due) {
                          $fail($attribute.' could not be more than due.');
                     }
@@ -95,20 +95,31 @@ class PaymentController extends Controller
             'phoneNumber' => 'required|digits:11',
         ]);
 
+        $reqAmount=$request->amount;
+
         $payment = new Payment();
 
         $payment->orderId = $request->orderId;
-
-        $payment->productId = $products->productId;
-        $payment->customerId = $products->customerId;
+        $payment->productId = $pOrder->productId;
+        $payment->customerId = $pOrder->customerId;
 
         $payment->projectId = $request->projectId;
         $payment->paymentMethod = $request->paymentMethod;
-        $payment->amount = $request->amount;
+        $payment->amount = $reqAmount;
         $payment->reference = $request->reference;
         $payment->phoneNumber = $request->phoneNumber;
         $payment->note = $request->note;
         $payment->save();
+
+        $due = $pOrder->due;
+        $paid = $pOrder->paid;
+        $newDue=$due-$reqAmount;
+        $newPaid=$paid+$reqAmount;
+
+        $pOrder->due=$newDue;
+        $pOrder->paid=$newPaid;
+        $pOrder->save();
+
         return redirect()->route('payment.index')->with('success','payment placed successfully.');
     }
 
@@ -167,6 +178,7 @@ class PaymentController extends Controller
         $productDetails =json_decode($products->productDetails);
         $customerDetails =json_decode($products->customerDetails);
         $data= array(
+            "oId" => $products->id,
             "pName" => $productDetails->name,
             "cName" => $customerDetails->name,
             "cPhoneNumber" => $customerDetails->phoneNumber,
@@ -175,6 +187,8 @@ class PaymentController extends Controller
             "due" => $products->due
           );
         $orderDetails = json_encode($data);
+
+
         $methods = PaymentMethod::where('publicationStatus', 1)->get();
         return view('payment.edit',['orders' => $productOrders,'orderDetails' => $orderDetails,'paymentById' => $payment,'methods' => $methods]);
     }
@@ -188,14 +202,14 @@ class PaymentController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $products = ProductOrder::where('id', $request->orderId)->first();
+        $pOrder = ProductOrder::where('id', $request->orderId)->first();
         
         request()->validate([
             'orderId' => 'required|not_in:0',
             'projectId' => 'required|not_in:0',
             // 'amount' => 'numeric|min:0|between:1,999999999',
-            'amount' => ['required','integer', function ($attribute, $value, $fail)use ($products) {
-                   $due=$products->due;
+            'amount' => ['required','integer', function ($attribute, $value, $fail)use ($pOrder) {
+                   $due=$pOrder->due;
                     if ($value > $due) {
                          $fail($attribute.' could not be more than due.');
                     }
@@ -206,9 +220,17 @@ class PaymentController extends Controller
 
 
         $payment = Payment::find($id);
+
+        $oldOrderId = $payment->orderId;
+        $newOrderId= $request->orderId;
+        $sameOrderId=0;
+        
+        $oldAmount = $payment->amount;
+        $reqAmount = $request->amount;
+
         $payment->orderId = $request->orderId;
-        $payment->productId = $products->productId;
-        $payment->customerId = $products->customerId;
+        $payment->productId = $pOrder->productId;
+        $payment->customerId = $pOrder->customerId;
         $payment->projectId = $request->projectId;
         $payment->paymentMethod = $request->paymentMethod;
         $payment->amount = $request->amount;
@@ -217,6 +239,54 @@ class PaymentController extends Controller
         $payment->note = $request->note;
         $payment->save();
 
+        if($oldOrderId==$newOrderId){
+            $sameOrderId=1;
+        }else{
+            $sameOrderId=0;
+
+            $porderDue = $pOrder->due;
+            $porderPaid = $pOrder->paid;
+            $changeDue=$porderDue-$reqAmount;
+            $changepaid=$porderPaid+$reqAmount;
+
+            $pOrder->due=$changeDue;
+            $pOrder->paid=$changepaid;
+            $pOrder->save();
+
+            $oldProductOrder = ProductOrder::where('id', $oldOrderId)->first();
+            $oldProductOrder->paid = $oldProductOrder->paid - $oldAmount;
+            $oldProductOrder->due = $oldProductOrder->due + $oldAmount;
+            $oldProductOrder->save();
+            
+        }
+
+        if( $oldAmount > $reqAmount && $sameOrderId==1){
+            $diff = $oldAmount - $reqAmount;
+            
+            $newPaidAmount = $pOrder->paid;
+            $newPaidAmount=$newPaidAmount-$diff;
+            $pOrder->paid = $newPaidAmount;
+
+            $newDueAmount = $pOrder->due;
+            $newDueAmount=$newDueAmount+$diff;
+            $pOrder->due = $newDueAmount;
+            $pOrder->save();
+            
+        }else if($reqAmount>$oldAmount && $sameOrderId==1){
+            $diff = $reqAmount - $oldAmount;
+            
+            $newPaidAmount = $pOrder->paid;
+            $newPaidAmount=$newPaidAmount+$diff;
+            $pOrder->paid = $newPaidAmount;
+
+            $newDueAmount = $pOrder->due;
+            $newDueAmount=$newDueAmount-$diff;
+            $pOrder->due = $newDueAmount;
+            $pOrder->save();
+        }else{
+            // echo " not changed";
+        }
+        
         return redirect()->route('payment.index')->with('success','payment placed successfully.');
     }
 
@@ -231,7 +301,15 @@ class PaymentController extends Controller
        // dd($id);
        $payment=Payment::find($id);
        $payment->deletionStatus = 1;
+       $oldOrderid = $payment->orderId;
+       $oldAmount = $payment->amount;
        $payment->save();
+
+            $oldProductOrder = ProductOrder::where('id', $oldOrderId)->first();
+            $oldProductOrder->paid = $oldProductOrder->paid - $oldAmount;
+            $oldProductOrder->due = $oldProductOrder->due + $oldAmount;
+            $oldProductOrder->save();
+       
        return redirect()->route('payment.index')->with('success','Payment delete successfully') ;
     }
 }

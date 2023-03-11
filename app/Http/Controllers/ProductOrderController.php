@@ -141,11 +141,11 @@ class ProductOrderController extends Controller
     }
     public function orderDetails(Request $request)
     {
-
         $products = ProductOrder::where('id', $request->id)->first();
         $productDetails =json_decode($products->productDetails);
         $customerDetails =json_decode($products->customerDetails);
         $data= array(
+            "oId" => $products->id,
             "pName" => $productDetails->name,
             "cName" => $customerDetails->name,
             "cPhoneNumber" => $customerDetails->phoneNumber,
@@ -200,11 +200,13 @@ class ProductOrderController extends Controller
             'product_orders.*')
         ->where('product_orders.id',$id)
         ->first();
-
+        $productDetails = Product::where('id',$order->productId)->first();
+        $productDetails= json_encode($productDetails);
+        // dd($productDetails);
         $products = Product::where('publicationStatus', 1)->get();
         $customers = Customer::where('publicationStatus', 1)->get();
 
-        return view('productOrder.edit',['order' => $order,'products' => $products, 'customers' => $customers]);
+        return view('productOrder.edit',['productDetails' => $productDetails,'order' => $order,'products' => $products, 'customers' => $customers]);
 
     }
 
@@ -217,12 +219,17 @@ class ProductOrderController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $productById = Product::find($request->productId);
         request()->validate([
-
             'productId' => 'required|not_in:0',
             'customerId' => 'required|not_in:0',
             'projectId' => 'required|not_in:0',
-            'unit' => 'required|min:1|numeric|gt:0',
+            'unit' => ['required','min:1','numeric', function ($attribute, $value, $fail)use ($productById) {
+                $available = $productById->productQuantity;
+                if ($value > $available ) {
+                      $fail($attribute.' not available.');
+                 }
+           }],
             'flatDiscount' => 'required|numeric|between:0,999999999',
             'paid' => 'required|numeric|min:0|between:0,999999999',
             'payable' => 'numeric|min:0|between:0,999999999',
@@ -242,7 +249,7 @@ class ProductOrderController extends Controller
         $payble=$subTotal-$request->flatDiscount;
 
         $productOrder = ProductOrder::find($id);
-        // dd($productOrder);
+        $oldUnit = $productOrder->unit;
         $productOrder->productId = $request->productId;
         $productOrder->customerId = $request->customerId;
         $productOrder->unit = $unit;
@@ -257,8 +264,23 @@ class ProductOrderController extends Controller
         $productOrder->due = $payble-$request->paid;
         $productOrder->note = $request->note;
         $productOrder->save();
+        if( $oldUnit > $unit ){
+            $diff = $oldUnit - $unit;
+            $newStockUnit = $productById->productQuantity;
+            $newStockUnit=$newStockUnit+$diff;
+            $productById->productQuantity= $newStockUnit;
+            $productById->save();
+        }else if($unit>$oldUnit){
+            $diff = $unit - $oldUnit;
+            $newStockUnit = $productById->productQuantity;
+            $newStockUnit=$newStockUnit-$diff;
+            $productById->productQuantity= $newStockUnit;
+            $productById->save();
+        }else{
+            // echo "Unit not changed";
+        }
 
-        return redirect()->route('sales.index')->with('success','Order Updated Successfully.');
+         return redirect()->route('sales.index')->with('success','Order Updated Successfully.');
     }
 
     /**

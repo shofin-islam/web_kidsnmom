@@ -76,7 +76,7 @@
                 </a>
                 <ul class="treeview-menu">
                     <li class="active"><a href=""><i class="fa fa-check"></i> Confirm Order</a></li>
-                    <li class=""><a href=""><i class="fa fa-ban"></i> Reject Order</a></li>
+                    <li class=""><a href="{{url('/customers/due')}}"><i class="fa fa-ban"></i> Reject Order</a></li>
                     <li class=""><a href=""><i class="fa fa-circle-o"></i> GEN-Report</a></li>
                     <li><a href=""><i class="fa fa-circle-o"></i> My Approval</a></li>
                 </ul>

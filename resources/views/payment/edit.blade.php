@@ -51,7 +51,7 @@
                                 <select class=" form-control select2" name="orderId" id="orderId">
                                             <option value="0"> --- Select Product Name --- </option>
                                             @foreach($orders as $order)
-                                            <option value="{{ $order->id }}">{{ $order->productName }}_{{ $order->customerName }}_{{ $order->due }}</option>
+                                            <option value="{{ $order->id }}">{{ $order->id }}_{{ $order->productName }}_{{ $order->customerName }}_{{ $order->due }}</option>
                                             @endforeach
                                         </select>
                                 <span class="text-danger">{{ $errors->has('orderId') ? $errors->first('orderId') : ''}} </span>
@@ -178,7 +178,7 @@
            success:function(data){
             console.log(data);
             dueAmount=data.due;
-            $("#orderDetails").html("Name: "+data.pName+"<br>Customer: "+data.cName+"<br>Phone: "+data.cPhoneNumber+"<br>Payable: "+data.payable+"<br>Paid: "+data.paid+"<br>Due: "+data.due);
+            $("#orderDetails").html("Order No: "+data.oId+"<br>Name: "+data.pName+"<br>Customer: "+data.cName+"<br>Phone: "+data.cPhoneNumber+"<br>Payable: "+data.payable+"<br>Paid: "+data.paid+"<br>Due: "+data.due);
         }
         });
     });
@@ -196,7 +196,7 @@
     document.getElementById('orderId').value = {{ $paymentById->orderId }};
     const data = JSON.parse(' {!! $orderDetails !!} ');
     dueAmount=data.due;
-    $("#orderDetails").html("Name: "+data.pName+"<br>Customer: "+data.cName+"<br>Phone: "+data.cPhoneNumber+"<br>Payable: "+data.payable+"<br>Paid: "+data.paid+"<br>Due: "+data.due);
+    $("#orderDetails").html("Order No: "+data.oId+"<br>Name: "+data.pName+"<br>Customer: "+data.cName+"<br>Phone: "+data.cPhoneNumber+"<br>Payable: "+data.payable+"<br>Paid: "+data.paid+"<br>Due: "+data.due);
     $("#paymentMethod").val({{ $paymentById->paymentMethod }});
 </script>
 @endsection

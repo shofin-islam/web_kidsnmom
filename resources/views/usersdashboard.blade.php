@@ -19,9 +19,9 @@
       <!-- small box -->
       <div class="small-box bg-aqua">
         <div class="inner">
-          <h3>125</h3>
+          <h3>{{$total}}</h3>
 
-          <p>New Orders</p>
+          <p>Expense</p>
         </div>
         <div class="icon">
           <i class="ion ion-bag"></i>
@@ -34,7 +34,7 @@
       <!-- small box -->
       <div class="small-box bg-green">
         <div class="inner">
-          <h3>{{$payable}}<sup style="font-size: 20px"></sup></h3>
+          <h3>{{$orderInfo['payable']}}<sup style="font-size: 20px"></sup></h3>
           <p>Sales Amount</p>
         </div>
         <div class="icon">
@@ -48,8 +48,8 @@
       <!-- small box -->
       <div class="small-box bg-yellow">
         <div class="inner">
-          <h3>{{$total}}</h3>
-          <p>Total Expense</p>
+          <h3>{{$orderInfo['paid']}}</h3>
+          <p>Paid</p>
         </div>
         <div class="icon">
           <i class="ion ion-person-add"></i>
@@ -62,9 +62,8 @@
       <!-- small box -->
       <div class="small-box bg-red">
         <div class="inner">
-          <h3>VisitorsCount</h3>
-
-          <p>Unique Visitors</p>
+          <h3>{{$orderInfo['due']}}</h3>
+          <p>Due</p>
         </div>
         <div class="icon">
           <i class="ion ion-pie-graph"></i>

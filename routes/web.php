@@ -53,7 +53,9 @@ Route::get('/', function () {
 
 Route::group(['middleware' => ['auth']], function() {
 
-    Route::get('/dashboard', [DashboardController::class,'getLastMonthExpense']);
+    Route::get('/dashboard', [DashboardController::class,'getLastMonthData']);
+    Route::get('/customers/due', [DashboardController::class,'getDueCustomerList']);
+
     })->middleware(['auth', 'verified']);
 
 Route::middleware('auth')->group(function () {

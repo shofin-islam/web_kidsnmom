@@ -325,7 +325,7 @@
     document.getElementById('customerId').value = {{ $order->customerId }};
     document.getElementById('projectId').value = {{ $order->projectId }};
     const customerDetails = JSON.parse(' {!! $order->customerDetails !!} ');
-    const productDetails = JSON.parse(' {!! $order->productDetails !!} ');
+    const productDetails = JSON.parse(' {!! $productDetails !!} ');
     $("#customerDetails").html(customerDetails.name+"<br>"+customerDetails.address+"<br>"+customerDetails.phoneNumber);
     $("#productDetails").html("Name: "+productDetails.name+"<br>Code: "+productDetails.code+"<br>Purchase Price: "+productDetails.purchasePrice+"<br>Sale price: "+productDetails.salesPrice+"<br>Product Quantity: "+productDetails.productQuantity);
     unitPrice=productDetails.salesPrice;

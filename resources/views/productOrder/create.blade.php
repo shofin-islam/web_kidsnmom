@@ -223,12 +223,15 @@
         var unitPrice=0;
         var subTotalAmount=0;
         var payableAmount=0;
+        var availableUnit=0;
 
         reset();
         
         unit.on('change',function(e){
             if(unit.val()<=0){
-                alert("Invalid Unit!")
+                alert("Invalid Unit!");
+            }else if(unit.val()>availableUnit){
+                alert("Available Unit: "+availableUnit);
             }else{
                 calculate();
             }
@@ -260,6 +263,7 @@
             console.log(data);
             $("#productDetails").html("Name: "+data[0].name+"<br>Code: "+data[0].code+"<br>Purchase Price: "+data[0].purchasePrice+"<br>Sale price: "+data[0].salesPrice+"<br>Product Quantity: "+data[0].productQuantity);
             unitPrice = data[0].salesPrice;
+            availableUnit=data[0].productQuantity;
             reset();
         }
         });

@@ -21,7 +21,7 @@
         <div class="inner">
           <h3>{{$total}}</h3>
 
-          <p>Expense</p>
+          <p>Current Month Expense</p>
         </div>
         <div class="icon">
           <i class="ion ion-bag"></i>
@@ -35,7 +35,7 @@
       <div class="small-box bg-green">
         <div class="inner">
           <h3>{{$orderInfo['payable']}}<sup style="font-size: 20px"></sup></h3>
-          <p>Sales Amount</p>
+          <p>Current Month Sales</p>
         </div>
         <div class="icon">
           <i class="ion ion-stats-bars"></i>
@@ -49,7 +49,7 @@
       <div class="small-box bg-yellow">
         <div class="inner">
           <h3>{{$orderInfo['paid']}}</h3>
-          <p>Paid</p>
+          <p>Payment On New Order</p>
         </div>
         <div class="icon">
           <i class="ion ion-person-add"></i>
@@ -63,7 +63,7 @@
       <div class="small-box bg-red">
         <div class="inner">
           <h3>{{$orderInfo['due']}}</h3>
-          <p>Due</p>
+          <p>Due on New Order</p>
         </div>
         <div class="icon">
           <i class="ion ion-pie-graph"></i>
@@ -74,6 +74,68 @@
     <!-- ./col -->
   </div>
   <!-- /.row -->
+  <!-- cards second row started -->
+  <div class="row">
+    <div class="col-lg-3 col-xs-6">
+      <!-- small box -->
+      <div class="small-box bg-red">
+        <div class="inner">
+          <h3>{{$dueCollection}}</h3>
+          <p>Due Collection</p>
+        </div>
+        <div class="icon">
+          <i class="ion ion-pie-graph"></i>
+        </div>
+        <a href="{{ url('/stats/unique') }}" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+      </div>
+    </div>
+    <!-- ./col -->
+    <div class="col-lg-3 col-xs-6">
+      <!-- small box -->
+      <div class="small-box bg-yellow">
+        <div class="inner">
+          <h3>{{$orderInfo['totalPaymentReceived']}}</h3>
+          <p>Total Payment Received</p>
+        </div>
+        <div class="icon">
+          <i class="ion ion-person-add"></i>
+        </div>
+        <a href="#" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+      </div>
+    </div>
+    <!-- ./col -->
+    <div class="col-lg-3 col-xs-6">
+      <!-- small box -->
+      <div class="small-box bg-green">
+        <div class="inner">
+          <h3>{{$orderInfo['productStock']}}<sup style="font-size: 20px"></sup></h3>
+          <p>Product Stock</p>
+        </div>
+        <div class="icon">
+          <i class="ion ion-stats-bars"></i>
+        </div>
+        <a href="#" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+      </div>
+    </div>
+    <!-- ./col -->
+    <div class="col-lg-3 col-xs-6">
+      <!-- small box -->
+      <div class="small-box bg-aqua">
+        <div class="inner">
+          <h3> ===== </h3>
+
+          <p>Expense</p>
+        </div>
+        <div class="icon">
+          <i class="ion ion-bag"></i>
+        </div>
+        <a href="{{ url('/order/manage') }}" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+      </div>
+    </div>
+    <!-- ./col -->
+  </div>
+  <!-- cards second row ended -->
+
   <!-- Main row -->
   <div class="row">
     <!-- Left col -->

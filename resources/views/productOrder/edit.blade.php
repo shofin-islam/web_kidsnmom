@@ -131,7 +131,6 @@
                         </div>
                         <div class="form-group">
                             <label>Due:</label>
-
                             <div class="input-group col-sm-8">
                                 <div class="input-group-addon">
                                     <i class="fa fa-gg"></i>
@@ -139,6 +138,17 @@
                                 <input type="number" name="due" id="due" class="form-control" value="{{ $order->due }}">
                                 <span class="text-danger">{{ $errors->has('due') ? $errors->first('due') : ''}} </span>
                             </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Due Date:</label>
+
+                            <div class="input-group date">
+                            <div class="input-group-addon">
+                                <i class="fa fa-calendar"></i>
+                            </div>
+                            <input type="text" class="form-control pull-left" name="dueDate" id="datepicker">
+                            </div>
+                            <!-- /.input group -->
                         </div>
                         
                     </div>
@@ -206,18 +216,26 @@
 
 <script type="text/javascript">
 
+$('#datepicker').datepicker({
+        autoclose: true,
+    })
+
     $.ajaxSetup({
         headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         }
     });
+    
         var subTotal = $("#subTotal");
         subTotal.prop('disabled', true);
         var payable = $("#payable");
         payable.prop('disabled',true);
         var unit = $("#unit");
+        unit.prop('disabled', true);
         var flatDiscount = $("#flatDiscount");
+        flatDiscount.prop('disabled', true);
         var paid = $("#paid");
+        paid.prop('disabled', true)
         var due = $("#due");
         due.prop('disabled',true);
         var unitPrice=0;

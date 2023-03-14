@@ -55,6 +55,7 @@ Route::group(['middleware' => ['auth']], function() {
 
     Route::get('/dashboard', [DashboardController::class,'getLastMonthData']);
     Route::get('/customers/due', [DashboardController::class,'getDueCustomerList']);
+    Route::get('/customers/due/exports', [ProductOrderController::class, 'exportDueCustomers']);
 
     })->middleware(['auth', 'verified']);
 
@@ -72,15 +73,11 @@ Route::get('/admin/dashboard', function () {
 
 require __DIR__.'/adminauth.php';
 
-
 Route::group(['middleware' => ['auth']], function() {
 
     Route::resource('roles', RoleController::class);
-
     Route::resource('users', UserController::class);
-
     Route::resource('products', ProductController::class);
-
     Route::resource('customers', CustomerController::class);
     Route::resource('expenseType', ExpenseTypeController::class);
     Route::resource('expense', ExpenseController::class);

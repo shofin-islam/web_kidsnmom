@@ -42,6 +42,21 @@
                 <div class="box box-danger">
                     <div class="box-body">
                     <div class="form-group">
+                            <label>Payment Type:</label>
+                            <div class="input-group col-sm-8">
+                                <div class="input-group-addon">
+                                    <i class="fa fa-gg"></i>
+                                </div>
+                                <select class=" form-control select2" name="paymentType" id="paymentType">
+                                            <option value="0"> --- Select Payment Type --- </option>
+                                            <option value="1">Regular Payment</option>
+                                            <option value="2">Adjust Amount</option>
+                                            
+                                        </select>
+                                <span class="text-danger">{{ $errors->has('paymentMethod') ? $errors->first('paymentMethod') : ''}} </span>
+                            </div>
+                        </div>
+                        <div class="form-group">
                             <label>Product Name:</label>
                             <div class="input-group col-sm-8">
                                 <div class="input-group-addon">
@@ -72,6 +87,7 @@
                                 <span class="text-danger">{{ $errors->has('paymentMethod') ? $errors->first('paymentMethod') : ''}} </span>
                             </div>
                         </div>
+                        
                         <div class="form-group">
                             <label>Amount:</label>
                             <div class="input-group col-sm-8">

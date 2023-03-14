@@ -3,7 +3,6 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-
 return new class extends Migration
 {
     /**
@@ -27,6 +26,8 @@ return new class extends Migration
             $table->float('payable', 10, 2)->default(0);
             $table->float('paid', 10, 2)->default(0);
             $table->float('due', 10, 2)->default(0);
+            $table->date('dueDate')->default(DB::raw('CURRENT_DATE'));
+            $table->float('profit', 10, 2)->default(0);
             $table->text('note')->nullable();
             $table->tinyInteger('deletionStatus')->default(0);
             $table->timestamps();

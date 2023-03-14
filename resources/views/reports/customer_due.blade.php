@@ -91,7 +91,7 @@
             <div class="box">
                 <div class="box-header">
                 <div class="pull-left">
-                        <a class="btn btn-warning" href="">Send Message</a>
+                <a class="btn btn-warning" href="{{ url('/customers/due/exports') }}"> Download </a>
                     </div>
                     <div class="center-block" style="text-align: center; margin: 3px;padding: 3px;">
                         <i class="fa fa-tasks"></i>

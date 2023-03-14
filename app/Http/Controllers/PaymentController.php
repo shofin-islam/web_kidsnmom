@@ -109,6 +109,8 @@ class PaymentController extends Controller
         $payment->reference = $request->reference;
         $payment->phoneNumber = $request->phoneNumber;
         $payment->note = $request->note;
+        $payment->paymentType = $request->paymentType;
+        $payment->paymentSource = "Payment";
         $payment->save();
 
         $due = $pOrder->due;

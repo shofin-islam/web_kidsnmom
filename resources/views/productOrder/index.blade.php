@@ -118,6 +118,7 @@
                         <th>Payable</th>
                         <th>Paid</th>
                         <th>Due</th>
+                        <th>Status</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -133,6 +134,7 @@
                         <td>{{ $order->payable }}</td>
                         <td>{{ $order->paid }}</td>
                         <td>{{ $order->due }}</td>
+                        <td>{{ $order->deletionStatus==1 ? 'Deleted' : ''}}</td>
                         <td>
                             <a href="{{ route('sales.show',$order->id) }}" class="btn btn-info" title="View"><span class="glyphicon glyphicon-zoom-in"></span>
                             </a>

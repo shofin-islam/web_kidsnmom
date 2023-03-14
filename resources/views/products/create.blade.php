@@ -166,6 +166,20 @@
                                 <span class="text-danger">{{ $errors->has('manufacturerId') ? $errors->first('manufacturerId') : ''}} </span>
                             </div>
                         </div>
+                        <div class="form-group">
+                            <label>Project Name:</label>
+
+                            <div class="input-group col-sm-6">
+                                <div class="input-group-addon">
+                                    <i class="fa fa-gg"></i>
+                                </div>
+                                    <select class="form-control select2" name="projectId" id="projectId">
+                                            <option value="0"> --- Select Project --- </option>
+                                            <option value="1">Master Project</option>
+                                    </select>
+                                <span class="text-danger">{{ $errors->has('projectId') ? $errors->first('projectId') : ''}} </span>
+                            </div>
+                        </div>
 
                         <div class="form-group">
                             <label>Publication Status:</label>

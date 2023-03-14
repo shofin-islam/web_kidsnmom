@@ -5,15 +5,18 @@ namespace App\Http\Controllers;
 use App\Models\ProductOrder;
 use App\Models\Product;
 use App\Models\Customer;
+use App\Models\PaymentMethod;
+use App\Models\Payment;
 use Illuminate\Http\Request;
 use Response;
 use DB;
 use Spatie\Activitylog\Models\Activity;
 use Illuminate\Support\Facades\Validator;
+use App\Exports\OrderExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ProductOrderController extends Controller
 {
-
     function __construct()
 
     {
@@ -41,16 +44,17 @@ class ProductOrderController extends Controller
             'product_orders.payable',
             'product_orders.paid',
             'product_orders.due',
+            'product_orders.deletionStatus',
+            'product_orders.profit',
             'p.name as productName',
             'c.name as customerName',
             'c.phoneNumber as CustomersContact'
-
         )
         ->join('products as p', 'p.id', '=', 'product_orders.productId')
         ->join('customers as c', 'c.id', '=', 'product_orders.customerId')
+        ->where('product_orders.deletionStatus',0)
         ->orderBy('id', 'asc')
-        ->paginate(100);
-
+        ->paginate(1000);
     return view('productOrder.index',compact('orders')); 
     }
 
@@ -61,9 +65,12 @@ class ProductOrderController extends Controller
      */
     public function create()
     {
-        $products = Product::where('publicationStatus', 1)->get();
-        $customers = Customer::where('publicationStatus', 1)->get();
-        return view('productOrder.create',['products' => $products, 'customers' => $customers]);
+        $products = Product::where('publicationStatus', 1)
+                                ->where('deletionStatus',0)
+                                ->get();
+        $customers = Customer::where('publicationStatus', 1)->where('deletionStatus',0)->get();
+        $methods = PaymentMethod::where('publicationStatus', 1)->where('deletionStatus',0)->get();
+        return view('productOrder.create',['products' => $products, 'customers' => $customers,'methods'=>$methods]);
     }
 
     /**
@@ -74,8 +81,22 @@ class ProductOrderController extends Controller
      */
     public function store(Request $request)
     {
-        $productById = Product::find($request->productId);
-        // dd($productById->productQuantity);
+
+        
+        $mdy = explode('/', $request->dueDate); // split the string into an array of parts
+        $ymd = $mdy[2] . '/' . $mdy[0] . '/' . $mdy[1]; // create a new string with the parts rearranged
+        $pId = $request->productId;
+        $cId = $request->customerId;
+        $unit = $request->unit;
+        $methodId = $request->methodId;
+        $projectId = $request->projectId;
+
+        // $productById = Product::find($request->productId);
+        $productById = Product::where('id', $pId )->first();
+
+        $purchasePrice_Unit = $productById->purchasePrice;
+        $investFromOrder = $unit*$purchasePrice_Unit;
+
         request()->validate([
             'productId' => 'required|not_in:0',
             'customerId' => 'required|not_in:0',
@@ -91,18 +112,19 @@ class ProductOrderController extends Controller
             'payable' => 'numeric|min:0|between:0,999999999',
             'due' => 'numeric|min:0',
             'subTotal' => 'numeric|gt:0',
+            'dueDate' => 'required|date|after_or_equal:today',
         ]);
-
-        $pId = $request->productId;
-        $cId = $request->customerId;
-        $productInfo = Product::where('id', $pId )->first();
+        
         $customerInfo = Customer::where('id', $cId)->first();
+        $phoneNumber = $customerInfo->phoneNumber;
 
-        $unit = $request->unit;
-        $unitPrice = $productInfo->salesPrice;
-        $productCode = $productInfo->productCode;
+        $unitPrice = $productById->salesPrice;
+        $productCode = $productById->productCode;
         $subTotal = $unit*$unitPrice;
         $payble=$subTotal-$request->flatDiscount;
+        $paidAmount = $request->paid;
+        $profit = $payble-$investFromOrder;
+
         $productOrder = new ProductOrder();
 
         $productOrder->productId = $request->productId;
@@ -111,12 +133,14 @@ class ProductOrderController extends Controller
         $productOrder->unitPrice = $unitPrice;
         $productOrder->subTotal = $subTotal;
         $productOrder->customerDetails = json_encode($customerInfo);
-        $productOrder->productDetails = json_encode($productInfo);
+        $productOrder->productDetails = json_encode($productById);
         $productOrder->projectId = $request->projectId;
         $productOrder->flatDiscount = $request->flatDiscount;
         $productOrder->payable = $payble;
-        $productOrder->paid = $request->paid;
-        $productOrder->due = $payble-$request->paid;
+        $productOrder->paid = $paidAmount;
+        $productOrder->due = $payble-$paidAmount;
+        $productOrder->dueDate = $ymd;
+        $productOrder->profit = $profit;
         $productOrder->note = $request->note;
         $productOrder->save();
         
@@ -124,6 +148,23 @@ class ProductOrderController extends Controller
         $latestUnit=$availableUnit-$unit;
         $productById->productQuantity = $latestUnit;
         $productById->save();
+
+        $oid = $productOrder->getAttribute('id');
+
+        $payment = new Payment();
+
+        $payment->orderId = $oid;
+        $payment->productId = $pId;
+        $payment->customerId = $cId;
+
+        $payment->projectId = $projectId;
+        $payment->paymentMethod = $methodId;
+        $payment->amount = $paidAmount;
+        $payment->paymentType = 1;
+        $payment->paymentSource = "ProductOrder";
+        $payment->phoneNumber = $phoneNumber;
+        $payment->save();
+
 
         return redirect()->route('sales.index')->with('success','Order created successfully.');
     }
@@ -194,8 +235,7 @@ class ProductOrderController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
-    {
-        
+    {       
         $order = ProductOrder::select(
             'product_orders.*')
         ->where('product_orders.id',$id)
@@ -219,66 +259,39 @@ class ProductOrderController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $productById = Product::find($request->productId);
-        request()->validate([
-            'productId' => 'required|not_in:0',
-            'customerId' => 'required|not_in:0',
-            'projectId' => 'required|not_in:0',
-            'unit' => ['required','min:1','numeric', function ($attribute, $value, $fail)use ($productById) {
-                $available = $productById->productQuantity;
-                if ($value > $available ) {
-                      $fail($attribute.' not available.');
-                 }
-           }],
-            'flatDiscount' => 'required|numeric|between:0,999999999',
-            'paid' => 'required|numeric|min:0|between:0,999999999',
-            'payable' => 'numeric|min:0|between:0,999999999',
-            'due' => 'numeric|min:0',
-            'subTotal' => 'numeric|gt:0',
-        ]);
-        
+        $mdy = explode('/', $request->dueDate); // split the string into an array of parts
+        $ymd = $mdy[2] . '/' . $mdy[0] . '/' . $mdy[1]; 
+
         $pId = $request->productId;
         $cId = $request->customerId;
+        $productById = Product::find($request->productId);
+        $productOrder = ProductOrder::find($id);
         $productInfo = Product::where('id', $pId )->first();
         $customerInfo = Customer::where('id', $cId)->first();
+        $productOrderUnit = $productOrder->unit;
+        $oldProductId=$productOrder->productId;
+        request()->validate([
+            'productId' => ['required','not_in:0', function ($attribute, $value, $fail)use ($productOrder) {
+                $x = $productOrder->productId;
+                if ($value != $x ) {
+                      $fail($attribute.' must be same.');
+                 }
+           }],
+            'customerId' => ['required','not_in:0', function ($attribute, $value, $fail)use ($productOrder) {
+                $y = $productOrder->customerId;
+                if ($value != $y ) {
+                      $fail($attribute.' must be same.');
+                 }
+           }],
+            'projectId' => 'required|not_in:0',
+        ]);
+        
 
-        $unit = $request->unit;
-        $unitPrice = $productInfo->salesPrice;
-        $productCode = $productInfo->productCode;
-        $subTotal = $unit*$unitPrice;
-        $payble=$subTotal-$request->flatDiscount;
-
-        $productOrder = ProductOrder::find($id);
-        $oldUnit = $productOrder->unit;
-        $productOrder->productId = $request->productId;
-        $productOrder->customerId = $request->customerId;
-        $productOrder->unit = $unit;
-        $productOrder->unitPrice = $unitPrice;
-        $productOrder->subTotal = $subTotal;
-        $productOrder->customerDetails = json_encode($customerInfo);
-        $productOrder->productDetails = json_encode($productInfo);
-        $productOrder->projectId = $request->projectId;
-        $productOrder->flatDiscount = $request->flatDiscount;
-        $productOrder->payable = $payble;
-        $productOrder->paid = $request->paid;
-        $productOrder->due = $payble-$request->paid;
+        
+        $productOrder->dueDate = $ymd;
         $productOrder->note = $request->note;
         $productOrder->save();
-        if( $oldUnit > $unit ){
-            $diff = $oldUnit - $unit;
-            $newStockUnit = $productById->productQuantity;
-            $newStockUnit=$newStockUnit+$diff;
-            $productById->productQuantity= $newStockUnit;
-            $productById->save();
-        }else if($unit>$oldUnit){
-            $diff = $unit - $oldUnit;
-            $newStockUnit = $productById->productQuantity;
-            $newStockUnit=$newStockUnit-$diff;
-            $productById->productQuantity= $newStockUnit;
-            $productById->save();
-        }else{
-            // echo "Unit not changed";
-        }
+
 
          return redirect()->route('sales.index')->with('success','Order Updated Successfully.');
     }
@@ -293,8 +306,44 @@ class ProductOrderController extends Controller
     {
         // dd($id);
         $productOrder=ProductOrder::find($id);
+        
+        $orderUnit = $productOrder->unit;
+        $productId= $productOrder->productId;
+
         $productOrder->deletionStatus = 1;
         $productOrder->save();
-        return redirect()->route('sales.index')->with('success','Order deleted successfully') ;
+
+        $productByOrdersProId = Product::where('id',$productId)->first();
+        $availableProductUnit = $productByOrdersProId->productQuantity;
+        $availableProductUnit=$availableProductUnit+$orderUnit;
+        $productByOrdersProId->productQuantity=$availableProductUnit;
+        $productByOrdersProId->save();
+
+        $payments=Payment::where('orderId',$id)->get();
+        foreach($payments as $p){
+            $p->deletionStatus=1;
+            $p->save();
+        }
+
+        return redirect()->route('sales.index')->with('success','Order deleted successfully');
+    }
+
+    public function exportDueCustomers() 
+
+    {
+
+        return Excel::download(new OrderExport, 'Due_Customers.xlsx');
+        // return Excel::create('itsolutionstuff_example', function($excel) use ($data) {
+
+        //     $excel->sheet('mySheet', function($sheet) use ($data)
+    
+        //     {
+    
+        //         $sheet->fromArray($data);
+    
+        //     });
+    
+        //    })->download("pdf");
+
     }
 }

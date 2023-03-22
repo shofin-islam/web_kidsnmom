@@ -20,11 +20,13 @@ return new class extends Migration
             $table->integer('manufacturerId')->default(0);
             $table->integer('projectId')->default(0);
             $table->string('productCode')->default(0);
-            $table->float('purchasePrice',8,2)->default(0);
-            $table->float('salesPrice',8,2)->default(0);
-            $table->float('discountPrice',8,2)->nullable();
+            $table->float('purchasePrice',11,2)->default(0);
+            $table->float('salesPrice',11,2)->default(0);
+            $table->float('discountPrice',11,2)->nullable();
             $table->boolean('discountStatus')->default(0);
             $table->integer('productQuantity')->default(0);
+            $table->float('totalAmount',11,2)->default(0);
+            $table->float('dueAmount',11,2)->default(0);
             $table->text('details')->nullable();
             $table->text('productImage')->nullable();
             $table->tinyInteger('publicationStatus')->default(0);

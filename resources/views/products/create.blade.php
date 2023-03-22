@@ -101,6 +101,27 @@
                             </div>
                         </div>
                         <div class="form-group">
+                            <label>Total Amount:</label>
+
+                            <div class="input-group col-sm-6">
+                                <div class="input-group-addon">
+                                    <i class="fa fa-gg"></i>
+                                </div>
+                                <input type="number" name="totalAmount" class="form-control" value="{{ old('totalAmount') }}">
+                                <span class="text-danger">{{ $errors->has('totalAmount') ? $errors->first('totalAmount') : ''}} </span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Due Amount:</label>
+                            <div class="input-group col-sm-6">
+                                <div class="input-group-addon">
+                                    <i class="fa fa-gg"></i>
+                                </div>
+                                <input type="number" name="dueAmount" class="form-control" value="{{ old('dueAmount') }}">
+                                <span class="text-danger">{{ $errors->has('dueAmount') ? $errors->first('dueAmount') : ''}} </span>
+                            </div>
+                        </div>
+                        <div class="form-group">
                             <label>Product Description:</label>
 
                             <div class="input-group">
@@ -143,6 +164,20 @@
                                             @endforeach
                                     </select>
                                 <span class="text-danger">{{ $errors->has('manufacturerId') ? $errors->first('manufacturerId') : ''}} </span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Project Name:</label>
+
+                            <div class="input-group col-sm-6">
+                                <div class="input-group-addon">
+                                    <i class="fa fa-gg"></i>
+                                </div>
+                                    <select class="form-control select2" name="projectId" id="projectId">
+                                            <option value="0"> --- Select Project --- </option>
+                                            <option value="1">Master Project</option>
+                                    </select>
+                                <span class="text-danger">{{ $errors->has('projectId') ? $errors->first('projectId') : ''}} </span>
                             </div>
                         </div>
 

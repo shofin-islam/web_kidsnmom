@@ -18,12 +18,16 @@ return new class extends Migration
             $table->string('name')->nullable();
             $table->integer('customerId')->default(0);
             $table->integer('productId')->default(0);
+            $table->integer('orderId')->default(0);
             $table->integer('projectId')->default(0);
             $table->text('note')->nullable();
             $table->string('paymentMethod')->nullable();
-            $table->decimal('amount', 7, 2)->default(0);
+            $table->float('amount', 11, 2)->default(0);
             $table->string('reference')->nullable();
             $table->string('phoneNumber')->nullable();
+            $table->tinyInteger('paymentType')->default(0);
+            $table->string('paymentSource')->nullable();
+            $table->tinyInteger('deletionStatus')->default(0);
             $table->timestamps();
         });
     }

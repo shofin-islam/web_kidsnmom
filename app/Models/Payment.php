@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
+use App\Models\ProductOrder;
 
 class Payment extends Model
 {
@@ -19,7 +20,7 @@ class Payment extends Model
         ->useLogName('payment')
         ->setDescriptionForEvent(fn(string $eventName) => "Payment has been {$eventName}")
         ->logOnlyDirty()
-        ->logOnly(['customerId', 'productId','projectId','note','paymentMethod','amount','reference','phoneNumber']);
+        ->logOnly(['orderId','customerId', 'productId','projectId','note','paymentMethod','amount','reference','phoneNumber','deletionStatus']);
         // Chain fluent methods for configuration options
     }
    

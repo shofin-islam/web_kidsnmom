@@ -26,7 +26,7 @@
         @csrf
     <section class="content-header">
         <h1>
-            Product Information
+            Payment Information
             <small>Preview</small>
         </h1>
         <ol class="breadcrumb">
@@ -42,36 +42,36 @@
                 <div class="box box-danger">
                     <div class="box-body">
                     <div class="form-group">
+                            <label>Payment Type:</label>
+                            <div class="input-group col-sm-8">
+                                <div class="input-group-addon">
+                                    <i class="fa fa-gg"></i>
+                                </div>
+                                <select class=" form-control select2" name="paymentType" id="paymentType">
+                                            <option value="0"> --- Select Payment Type --- </option>
+                                            <option value="1">Regular Payment</option>
+                                            <option value="2">Adjust Amount</option>
+                                            
+                                        </select>
+                                <span class="text-danger">{{ $errors->has('paymentMethod') ? $errors->first('paymentMethod') : ''}} </span>
+                            </div>
+                        </div>
+                        <div class="form-group">
                             <label>Product Name:</label>
                             <div class="input-group col-sm-8">
                                 <div class="input-group-addon">
                                     <i class="fa fa-gg"></i>
                                 </div>
-                                <select class=" form-control select2" name="productId" id="productId">
-                                            <option value="0"> --- Select Product Name --- </option>
-                                            @foreach($products as $product)
-                                            <option value="{{ $product->id }}">{{ $product->name }}</option>
+                                <select class=" form-control select2" name="orderId" id="orderId">
+                                            <option value="0"> --- Select Order --- </option>
+                                            @foreach($orders as $order)
+                                            <option value="{{ $order->id }}">{{ $order->id }}_{{ $order->productName }}_{{ $order->customerName }}_{{ $order->due }}</option>
                                             @endforeach
                                         </select>
-                                <span class="text-danger">{{ $errors->has('productId') ? $errors->first('productId') : ''}} </span>
+                                <span class="text-danger">{{ $errors->has('orderId') ? $errors->first('orderId') : ''}} </span>
                             </div>
                         </div>
                         
-                        <div class="form-group">
-                            <label>Customer Name:</label>
-                            <div class="input-group col-sm-8">
-                                <div class="input-group-addon">
-                                    <i class="fa fa-gg"></i>
-                                </div>
-                                <select class=" form-control select2" name="customerId" id="customerId">
-                                            <option value="0"> --- Select Category Name --- </option>
-                                            @foreach($customers as $customer)
-                                            <option value="{{ $customer->id }}">{{ $customer->name }}</option>
-                                            @endforeach
-                                        </select>
-                                <span class="text-danger">{{ $errors->has('customerId') ? $errors->first('customerId') : ''}} </span>
-                            </div>
-                        </div>
                         <div class="form-group">
                             <label>Payment Method:</label>
                             <div class="input-group col-sm-8">
@@ -87,6 +87,7 @@
                                 <span class="text-danger">{{ $errors->has('paymentMethod') ? $errors->first('paymentMethod') : ''}} </span>
                             </div>
                         </div>
+                        
                         <div class="form-group">
                             <label>Amount:</label>
                             <div class="input-group col-sm-8">
@@ -126,18 +127,12 @@
                     <div class="box-body">
                         
                         <div class="form-group">
-                            <label>Product Details:</label>
-                            <div class="input-group col-sm-6" id="productDetails">
+                            <label>Order Details:</label>
+                            <div class="input-group col-sm-6" id="orderDetails">
                                 
                             </div>
                         </div>
                         
-                        <div class="form-group">
-                            <label>Customer Details:</label>
-                            <div class="input-group col-sm-6" id="customerDetails">
-                                
-                            </div>
-                        </div>
                         <div class="form-group">
                             <label>Project:</label>
                             <div class="input-group col-sm-6">
@@ -188,34 +183,31 @@
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         }
     });
-        
-    $("#productId").on('change',function(e){
-        var productId = $("#productId").val();
+
+    var dueAmount=0;
+    var amountF = $("#amount");
+
+    $("#orderId").on('change',function(e){
+        var productId = $("#orderId").val();
         $.ajax({
            type:'POST',
-           url:"{{ url('/sales/productById') }}",
+           url:"{{ url('/sales/orderDetails') }}",
            data:{'id': productId, '_token': $('input[name="token"]').val()},
            success:function(data){
             console.log(data);
-            $("#productDetails").html("Name: "+data[0].name+"<br>Code: "+data[0].code+"<br>Purchase Price: "+data[0].purchasePrice+"<br>Sale price: "+data[0].salesPrice+"<br>Product Quantity: "+data[0].productQuantity);
-            unitPrice = data[0].salesPrice;
-            reset();
+            dueAmount=data.due;
+            $("#orderDetails").html("Name: "+data.pName+"<br>Customer: "+data.cName+"<br>Phone: "+data.cPhoneNumber+"<br>Payable: "+data.payable+"<br>Paid: "+data.paid+"<br>Due: "+data.due);
         }
         });
     });
 
-    $("#customerId").on('change',function(e){
+    amountF.on('change',function(e){
         
-        var customerId = $("#customerId").val();
-        $.ajax({
-           type:'POST',
-           url:"{{ url('/sales/customerById') }}",
-           data:{'id': customerId, '_token': $('input[name="token"]').val()},
-           success:function(data){
-            console.log(data);
-            $("#customerDetails").html(data[0].name+"<br>"+data[0].address+"<br>"+data[0].phoneNumber);
-           }
-        });
+        var amount = amountF.val();
+       if(amount>dueAmount){
+        alert("Amount is greater than due amount!");
+        // amountF.val(0);
+       }else{}
 
     });
 

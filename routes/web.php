@@ -10,6 +10,7 @@ use App\Http\Controllers\ExpenseTypeController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\ProductOrderController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\DashboardController;
 use Spatie\Activitylog\Models\Activity;
 
 
@@ -41,9 +42,22 @@ Route::get('/', function () {
 //     return view('usersdashboard');
 // })->middleware(['auth', 'verified'])->name('/');
 
-Route::get('/dashboard', function () {
-    return view('usersdashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+
+/*
+|--------------------------------------------------------------------------
+| this is the working code for auth dashboard 
+*/
+// Route::get('/dashboard', function () {
+//     return view('usersdashboard');
+// })->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::group(['middleware' => ['auth']], function() {
+
+    Route::get('/dashboard', [DashboardController::class,'getLastMonthData']);
+    Route::get('/customers/due', [DashboardController::class,'getDueCustomerList']);
+    Route::get('/customers/due/exports', [ProductOrderController::class, 'exportDueCustomers']);
+
+    })->middleware(['auth', 'verified']);
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -59,20 +73,17 @@ Route::get('/admin/dashboard', function () {
 
 require __DIR__.'/adminauth.php';
 
-
 Route::group(['middleware' => ['auth']], function() {
 
     Route::resource('roles', RoleController::class);
-
     Route::resource('users', UserController::class);
-
     Route::resource('products', ProductController::class);
-
     Route::resource('customers', CustomerController::class);
     Route::resource('expenseType', ExpenseTypeController::class);
     Route::resource('expense', ExpenseController::class);
     Route::post('/sales/productById', [ProductOrderController::class, 'productById']);
     Route::post('/sales/customerById', [ProductOrderController::class, 'customerById']);
+    Route::post('/sales/orderDetails', [ProductOrderController::class, 'orderDetails']);
     Route::resource('sales', ProductOrderController::class);
     Route::resource('payment', PaymentController::class);
 });

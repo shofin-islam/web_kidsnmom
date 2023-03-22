@@ -26,13 +26,13 @@
         @csrf
     <section class="content-header">
         <h1>
-            Product Information
+            Order Information
             <small>Preview</small>
         </h1>
         <ol class="breadcrumb">
             <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li><a href="#">Product</a></li>
-            <li class="active">New Product</li>
+            <li><a href="#">Order</a></li>
+            <li class="active">New Order</li>
         </ol>
     </section>
     <!-- Main content -->
@@ -139,6 +139,17 @@
                                 <span class="text-danger">{{ $errors->has('due') ? $errors->first('due') : ''}} </span>
                             </div>
                         </div>
+                        <div class="form-group">
+                            <label>Due Date:</label>
+
+                            <div class="input-group date">
+                            <div class="input-group-addon">
+                                <i class="fa fa-calendar"></i>
+                            </div>
+                            <input type="text" class="form-control pull-left" name="dueDate" id="datepicker">
+                            </div>
+                            <!-- /.input group -->
+                        </div>
                         
                     </div>
                 </div>
@@ -159,6 +170,21 @@
                             <label>Customer Details:</label>
                             <div class="input-group col-sm-6" id="customerDetails">
                                 
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Payment methods:</label>
+                            <div class="input-group col-sm-6">
+                                <div class="input-group-addon">
+                                    <i class="fa fa-gg"></i>
+                                </div>
+                                <select class=" form-control select2" name="methodId" id="methodId">
+                                            <option value="0"> --- Select Payment Method --- </option>
+                                            @foreach($methods as $method)
+                                            <option value="{{ $method->id }}">{{ $method->methodName }}</option>
+                                            @endforeach
+                                        </select>
+                                <span class="text-danger">{{ $errors->has('methodId') ? $errors->first('methodId') : ''}} </span>
                             </div>
                         </div>
                         <div class="form-group">
@@ -205,6 +231,9 @@
 @section('myscripts')
 
 <script type="text/javascript">
+    $('#datepicker').datepicker({
+        autoclose: true,
+    })
 
     $.ajaxSetup({
         headers: {
@@ -223,12 +252,15 @@
         var unitPrice=0;
         var subTotalAmount=0;
         var payableAmount=0;
+        var availableUnit=0;
 
         reset();
         
         unit.on('change',function(e){
             if(unit.val()<=0){
-                alert("Invalid Unit!")
+                alert("Invalid Unit!");
+            }else if(unit.val()>availableUnit){
+                alert("Available Unit: "+availableUnit);
             }else{
                 calculate();
             }
@@ -260,6 +292,7 @@
             console.log(data);
             $("#productDetails").html("Name: "+data[0].name+"<br>Code: "+data[0].code+"<br>Purchase Price: "+data[0].purchasePrice+"<br>Sale price: "+data[0].salesPrice+"<br>Product Quantity: "+data[0].productQuantity);
             unitPrice = data[0].salesPrice;
+            availableUnit=data[0].productQuantity;
             reset();
         }
         });

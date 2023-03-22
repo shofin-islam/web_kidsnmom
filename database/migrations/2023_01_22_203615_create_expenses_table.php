@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('type')->default(0);
             $table->text('details')->nullable();
             $table->integer('projectId')->nullable();
-            $table->decimal('amount', 7, 2)->default(0);
+            $table->float('amount', 11, 2)->default(0);
             $table->tinyInteger('deletionStatus')->default(0);
             $table->timestamps();
         });

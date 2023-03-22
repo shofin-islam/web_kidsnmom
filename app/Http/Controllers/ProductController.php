@@ -115,31 +115,34 @@ class ProductController extends Controller
             'name' => 'required',
             'categoryId' => 'required|not_in:0',
             'manufacturerId' => 'required|not_in:0',
-            'purchasePrice' => 'required',
-            'salesPrice' => 'required',
-            'productQuantity' => 'required',
+            'projectId' => 'required|not_in:0',
+            'purchasePrice' => 'required|numeric|between:1,999999999',
+            'salesPrice' => 'required|numeric|between:1,999999999',
+            'productQuantity' => 'required|min:1|numeric|gt:0',
+            'totalAmount' => 'required|numeric|between:0,999999999',
+            'dueAmount' => 'required|numeric|between:0,999999999',
             'publicationStatus' => 'required|not_in:0',
         ]);
 
         // Product::create($request->all());
-
         $product = new Product();
 
         $product->name = $request->name;
         $product->productCode = $request->productCode;
         $product->categoryId = $request->categoryId;
         $product->manufacturerId = $request->manufacturerId;
+        $product->projectId = $request->projectId;
         $product->purchasePrice = $request->purchasePrice;
         $product->salesPrice = $request->salesPrice;
         $product->productQuantity = $request->productQuantity;
+        $product->totalAmount = $request->totalAmount;
+        $product->dueAmount = $request->dueAmount;
         $product->details = $request->details;
         $product->publicationStatus = $request->publicationStatus;
         $product->save();
         
         return redirect()->route('products.index')->with('success','Product created successfully.');
-    }
-
-    
+    }    
 
     /**
 
@@ -165,9 +168,7 @@ class ProductController extends Controller
                 ->where('products.id', $product_id)
                 ->first();
         return view('products.show', ['products' => $productById]);
-    }
-
-    
+    }    
 
     /**
 
@@ -184,8 +185,7 @@ class ProductController extends Controller
     public function edit(Product $product)
 
     {
-        $product_id = $product->id;
-        
+        $product_id = $product->id;        
         $productById = DB::table('products')
                 ->join('categories', 'products.categoryId', '=', 'categories.id')
                 ->join('manufacturers', 'products.manufacturerId', '=', 'manufacturers.id')
@@ -200,9 +200,7 @@ class ProductController extends Controller
 
         return view('products.edit',['product' => $productById,'manufacturers' => $manufacturers, 'categorys' => $categorys]);
 
-    }
-
-    
+    }    
 
     /**
 
@@ -223,13 +221,15 @@ class ProductController extends Controller
     {
         
         request()->validate([
-
             'name' => 'required',
             'categoryId' => 'required|not_in:0',
             'manufacturerId' => 'required|not_in:0',
-            'purchasePrice' => 'required',
-            'salesPrice' => 'required',
-            'productQuantity' => 'required',
+            'projectId' => 'required|not_in:0',
+            'purchasePrice' => 'required|numeric|between:1,999999999',
+            'salesPrice' => 'required|numeric|between:1,999999999',
+            'productQuantity' => 'required|min:1|numeric|gt:0',
+            'totalAmount' => 'required|numeric|between:0,999999999',
+            'dueAmount' => 'required|numeric|between:0,999999999',
             'publicationStatus' => 'required|not_in:0',
         ]);
         // dd($request);
@@ -239,18 +239,19 @@ class ProductController extends Controller
         $productById->productCode = $request->productCode;
         $productById->categoryId = $request->categoryId;
         $productById->manufacturerId = $request->manufacturerId;
+        $productById->projectId = $request->projectId;
         $productById->purchasePrice = $request->purchasePrice;
         $productById->salesPrice = $request->salesPrice;
         $productById->productQuantity = $request->productQuantity;
+        $productById->totalAmount = $request->totalAmount;
+        $productById->dueAmount = $request->dueAmount;
         $productById->details = $request->details;
         $productById->publicationStatus = $request->publicationStatus;
         $productById->save();
 
         return redirect()->route('products.index')->with('success','Product updated successfully');
 
-    }
-
-    
+    }    
 
     /**
 
@@ -267,13 +268,10 @@ class ProductController extends Controller
     public function destroy(Product $product)
 
     {
-
         // $product->delete();
-        
         $product->deletionStatus = 1;
         $product->save();
         return redirect()->route('products.index')->with('success','Product deleted successfully') ;
-
     }
 
 }

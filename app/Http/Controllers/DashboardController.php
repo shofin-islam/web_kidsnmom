@@ -61,7 +61,7 @@ class DashboardController extends Controller
             "productStock" => $productStock,
           );
 
-          // except current month data
+        //   except current month data
         //   Payment::whereYear('created_at', '<>', now()->year)
         //          ->orWhereMonth('created_at', '<>', now()->month)
         //          ->get();
@@ -96,6 +96,7 @@ class DashboardController extends Controller
             'product_orders.payable',
             'product_orders.paid',
             'product_orders.due',
+            'product_orders.dueDate',
             'p.name as productName',
             'c.name as customerName',
             'c.phoneNumber as CustomersContact'
@@ -107,6 +108,33 @@ class DashboardController extends Controller
         ->get();
         
         return view('reports.customer_due',['dueCustomersData'=>$dueCustomersData]);
+        
+    }
+
+    public function getNextRecoveryCustomerslist()
+    {
+
+      // echo now();
+      // dd();
+        $dueCustomersData = ProductOrder::select(
+            'product_orders.id', 
+            'product_orders.unit',
+            'product_orders.payable',
+            'product_orders.paid',
+            'product_orders.due',
+            'product_orders.dueDate',
+            'p.name as productName',
+            'c.name as customerName',
+            'c.phoneNumber as CustomersContact'
+
+        )
+        ->join('products as p', 'p.id', '=', 'product_orders.productId')
+        ->join('customers as c', 'c.id', '=', 'product_orders.customerId')
+        ->where([['product_orders.due','>',0]])
+        ->whereBetween('product_orders.dueDate', [now(), now()->addDays(7)])
+        ->get();
+        
+        return view('reports.upcoming_customer_due',['dueCustomersData'=>$dueCustomersData]);
         
     }
 }

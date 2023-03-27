@@ -11,6 +11,7 @@ use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\ProductOrderController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\FileController;
 use Spatie\Activitylog\Models\Activity;
 
 
@@ -56,6 +57,13 @@ Route::group(['middleware' => ['auth']], function() {
     Route::get('/dashboard', [DashboardController::class,'getLastMonthData']);
     Route::get('/customers/due', [DashboardController::class,'getDueCustomerList']);
     Route::get('/customers/due/exports', [ProductOrderController::class, 'exportDueCustomers']);
+    Route::get('/customers/due/upcomming', [DashboardController::class,'getNextRecoveryCustomerslist']);
+
+    Route::get('/files', [FileController::class,'index'])->name('files.index');
+    Route::get('/files/add', [FileController::class,'create'])->name('files.create');
+    Route::post('/files/add', [FileController::class,'store'])->name('files.store');
+    Route::get('/files/show/{id}', [FileController::class,'show'])->name('files.show');
+
 
     })->middleware(['auth', 'verified']);
 

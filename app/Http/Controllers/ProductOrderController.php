@@ -84,7 +84,7 @@ class ProductOrderController extends Controller
 
         
         $mdy = explode('/', $request->dueDate); // split the string into an array of parts
-        $ymd = $mdy[2] . '/' . $mdy[0] . '/' . $mdy[1]; // create a new string with the parts rearranged
+        $ymd = $mdy[2] . '-' . $mdy[0] . '-' . $mdy[1].' 23:59:59'; // create a new string with the parts rearranged
         $pId = $request->productId;
         $cId = $request->customerId;
         $unit = $request->unit;
@@ -260,7 +260,7 @@ class ProductOrderController extends Controller
     public function update(Request $request, $id)
     {
         $mdy = explode('/', $request->dueDate); // split the string into an array of parts
-        $ymd = $mdy[2] . '/' . $mdy[0] . '/' . $mdy[1]; 
+        $ymd = $mdy[2] . '-' . $mdy[0] . '-' . $mdy[1].' 23:59:59';
 
         $pId = $request->productId;
         $cId = $request->customerId;

@@ -95,7 +95,7 @@
                     </div>
                     <div class="center-block" style="text-align: center; margin: 3px;padding: 3px;">
                         <i class="fa fa-tasks"></i>
-                        <h3 class="box-title">Manage Expences</h3><br>
+                        <h3 class="box-title">Manage Expences Type</h3><br>
                         
                         @if (session()->has('success'))
                         <div class="alert alert-success" style="margin: 10px;">
@@ -109,7 +109,7 @@
                     <table id="example1" class="table table-bordered table-striped">
                 <thead>
                     <tr>
-                        <th>ExpenceType ID</th>
+                        <th>ID</th>
                         <th>Name</th>
                         <th>Details</th>
                         <th>Project#</th>
@@ -123,20 +123,16 @@
                         <td>{{ $extype->id }}</td>
                         <td>{{ $extype->name }}</td>
                         <td>{{ $extype->details }}</td>
-                        <td>{{ $extype->projectId }}</td>
+                        <td>{{ $extype->projectName }}</td>
                         <td>{{ $extype->publicationStatus==1 ? 'Published' : "Unpublished" }}</td>
-                        <td><a href="{{ route('expenseType.show',$extype->id) }}" class="btn btn-info" title="View"><span class="glyphicon glyphicon-zoom-in"></span>
-                            </a>
-                            <a href="{{ route('expenseType.edit',$extype->id) }}" class="btn btn-success" title="Edit">
-                             <span class="glyphicon glyphicon-edit"></span>
-                            </a>
+                        <td>
                             
                             <form action="{{ route('expenseType.destroy',$extype->id) }}" method="POST">
                             @csrf
 
                             @method('DELETE')
 
-                            @can('product-delete')
+                            @can('expense-type-delete')
 
                             <button type="submit" class="btn btn-danger">Delete</button>
 

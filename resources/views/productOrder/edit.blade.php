@@ -147,6 +147,7 @@
                                 <i class="fa fa-calendar"></i>
                             </div>
                             <input type="text" class="form-control pull-left" name="dueDate" id="datepicker">
+                            <span class="text-danger">{{ $errors->has('dueDate') ? $errors->first('dueDate') : ''}} </span>
                             </div>
                             <!-- /.input group -->
                         </div>
@@ -172,19 +173,7 @@
                                 
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label>Project:</label>
-                            <div class="input-group col-sm-6">
-                                <div class="input-group-addon">
-                                    <i class="fa fa-gg"></i>
-                                </div>
-                                <select class=" form-control select2" name="projectId" id="projectId">
-                                            <option value="0"> --- Select Project --- </option>
-                                            <option value="1">Master Project</option>
-                                        </select>
-                                <span class="text-danger">{{ $errors->has('projectId') ? $errors->first('projectId') : ''}} </span>
-                            </div>
-                        </div>
+                        
                         <div class="form-group">
                             <label>Note:</label>
                             <div class="input-group">
@@ -238,6 +227,11 @@ $('#datepicker').datepicker({
         paid.prop('disabled', true)
         var due = $("#due");
         due.prop('disabled',true);
+        var productID = $("#productId");
+        productID.prop('disabled', true);
+        var customerID = $("#customerId");
+        customerID.prop('disabled', true);
+
         var unitPrice=0;
         var subTotalAmount=0;
         var payableAmount=0;
@@ -341,7 +335,6 @@ $('#datepicker').datepicker({
     
     document.getElementById('productId').value = {{ $order->productId }};
     document.getElementById('customerId').value = {{ $order->customerId }};
-    document.getElementById('projectId').value = {{ $order->projectId }};
     const customerDetails = JSON.parse(' {!! $order->customerDetails !!} ');
     const productDetails = JSON.parse(' {!! $productDetails !!} ');
     $("#customerDetails").html(customerDetails.name+"<br>"+customerDetails.address+"<br>"+customerDetails.phoneNumber);

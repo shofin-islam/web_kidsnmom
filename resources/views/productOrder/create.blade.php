@@ -64,7 +64,7 @@
                                     <i class="fa fa-gg"></i>
                                 </div>
                                 <select class=" form-control select2" name="customerId" id="customerId">
-                                            <option value="0"> --- Select Category Name --- </option>
+                                            <option value="0"> --- Select Customer Name --- </option>
                                             @foreach($customers as $customer)
                                             <option value="{{ $customer->id }}">{{ $customer->name }}</option>
                                             @endforeach
@@ -142,11 +142,12 @@
                         <div class="form-group">
                             <label>Due Date:</label>
 
-                            <div class="input-group date">
+                            <div class="input-group date col-sm-8">
                             <div class="input-group-addon">
                                 <i class="fa fa-calendar"></i>
                             </div>
                             <input type="text" class="form-control pull-left" name="dueDate" id="datepicker">
+                            <span class="text-danger">{{ $errors->has('dueDate') ? $errors->first('dueDate') : ''}} </span>
                             </div>
                             <!-- /.input group -->
                         </div>
@@ -187,19 +188,7 @@
                                 <span class="text-danger">{{ $errors->has('methodId') ? $errors->first('methodId') : ''}} </span>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label>Project:</label>
-                            <div class="input-group col-sm-6">
-                                <div class="input-group-addon">
-                                    <i class="fa fa-gg"></i>
-                                </div>
-                                <select class=" form-control select2" name="projectId">
-                                            <option value="0"> --- Select Project --- </option>
-                                            <option value="1">Master Project</option>
-                                        </select>
-                                <span class="text-danger">{{ $errors->has('projectId') ? $errors->first('projectId') : ''}} </span>
-                            </div>
-                        </div>
+                        
                         <div class="form-group">
                             <label>Note:</label>
                             
@@ -259,8 +248,10 @@
         unit.on('change',function(e){
             if(unit.val()<=0){
                 alert("Invalid Unit!");
+                reset();
             }else if(unit.val()>availableUnit){
                 alert("Available Unit: "+availableUnit);
+                reset();
             }else{
                 calculate();
             }
@@ -268,7 +259,8 @@
         });
         flatDiscount.on('change',function(e){
             if(flatDiscount.val()<=0){
-                alert("Invalid Discount Amount!")
+                alert("Invalid Discount Amount!");
+                reset();
             }else{
                 calculate();
             }
@@ -276,7 +268,8 @@
 
         paid.on('change',function(e){
             if(paid.val()<=0){
-                alert("Invalid Paid Amount!")
+                alert("Invalid Paid Amount!");
+                reset();
             }else{
                 calculate();
             }

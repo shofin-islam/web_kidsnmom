@@ -106,12 +106,16 @@
                     <table id="example1" class="table table-bordered table-striped">
                 <thead>
                     <tr>
-                        <th>Product ID</th>
-                        <th>Product Name</th>
+                        <th>ID#</th>
+                        <th>Name</th>
                         <th>Code</th>
-                        <th>Category Name</th>
-                        <th>Manufacturer Name</th>
-                        <th>Publication Status</th>
+                        <th>Purchase TK</th>
+                        <th>Sales TK</th>
+                        <th>Unit</th>
+                        <th>Category</th>
+                        <th>Manufacturer</th>
+                        <th>Projet</th>
+                        <th>Status</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -121,14 +125,20 @@
                         <td>{{ $product->id }}</td>
                         <td>{{ $product->name }}</td>
                         <td>{{ $product->productCode }}</td>
+                        <td>{{ $product->purchasePrice }}</td>
+                        <td>{{ $product->salesPrice }}</td>
+                        <td>{{ $product->productQuantity }}</td>
                         <td>{{ $product->categoryName }}</td>
                         <td>{{ $product->manufacturerName }}</td>
+                        <td>{{ $product->projectName }}</td>
                         <td>{{ $product->publicationStatus==1 ? 'Published' : "Unpublished" }}</td>
                         <td><a href="{{ route('products.show',$product->id) }}" class="btn btn-info" title="View"><span class="glyphicon glyphicon-zoom-in"></span>
                             </a>
+                            @can('product-edit')
                             <a href="{{ route('products.edit',$product->id) }}" class="btn btn-success" title="Edit">
                              <span class="glyphicon glyphicon-edit"></span>
                             </a>
+                            @endcan
                             
                             <form action="{{ route('products.destroy',$product->id) }}" method="POST">
                             @csrf

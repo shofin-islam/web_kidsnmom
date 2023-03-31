@@ -64,7 +64,6 @@ Route::group(['middleware' => ['auth']], function() {
     Route::post('/files/add', [FileController::class,'store'])->name('files.store');
     Route::get('/files/show/{id}', [FileController::class,'show'])->name('files.show');
 
-
     })->middleware(['auth', 'verified']);
 
 Route::middleware('auth')->group(function () {

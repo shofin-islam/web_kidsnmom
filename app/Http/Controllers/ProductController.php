@@ -11,7 +11,10 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use App\Models\Category;
 use App\Models\Manufacturer;
+use App\Models\ProjectUser;
+use App\Classes\UserProjectInfo;
 use DB;
+use Auth;
     
 
 class ProductController extends Controller
@@ -55,16 +58,22 @@ class ProductController extends Controller
     public function index()
 
     {
-                $products = Product::select(
-                    'products.*',
-                    'categories.categoryName',
-                    'manufacturers.manufacturerName'
-                )
-                ->join('categories', 'products.categoryId', '=', 'categories.id')
-                ->join('manufacturers', 'products.manufacturerId', '=', 'manufacturers.id')
-                ->where('products.publicationStatus',1)
-                ->where('products.deletionStatus',0)
-                ->paginate(100);
+       
+            $projectInfo = new UserProjectInfo;
+
+            $products = Product::select(
+                'products.*',
+                'categories.categoryName',
+                'manufacturers.manufacturerName',
+                'projects.name as projectName'
+            )
+            ->join('categories', 'products.categoryId', '=', 'categories.id')
+            ->join('manufacturers', 'products.manufacturerId', '=', 'manufacturers.id')
+            ->join('projects', 'products.projectId', '=', 'projects.id')
+            ->whereIn('products.projectId', $projectInfo->getUserProjectId()->pluck('project_id'))
+            ->where('products.publicationStatus', 1)
+            ->where('products.deletionStatus', 0)
+            ->paginate(500);
 
             return view('products.index',compact('products'));
 
@@ -85,11 +94,13 @@ class ProductController extends Controller
     public function create()
 
     {
-        $manufacturers = Manufacturer::where('publicationStatus', 1)->get();
-        $categorys = Category::where('publicationStatus', 1)->get();
+        $projectInfo = new UserProjectInfo;
+        $manufacturers = Manufacturer::where('publicationStatus', 1)
+                        ->whereIn('projectId', $projectInfo->getUserProjectId()->pluck('project_id'))->get();
+        $categorys = Category::where('publicationStatus', 1)
+                    ->whereIn('projectId', $projectInfo->getUserProjectId()->pluck('project_id'))->get();
 
-        return view('products.create',['manufacturers' => $manufacturers, 'categorys' => $categorys]);
-
+        return view('products.create',['manufacturers' => $manufacturers, 'categorys' => $categorys,'Projects'=>$projectInfo->getUserProjectName()]);
     }
 
     
@@ -164,7 +175,8 @@ class ProductController extends Controller
         $productById = DB::table('products')
                 ->join('categories', 'products.categoryId', '=', 'categories.id')
                 ->join('manufacturers', 'products.manufacturerId', '=', 'manufacturers.id')
-                ->select('products.*', 'categories.categoryName', 'manufacturers.manufacturerName')
+                ->join('projects', 'products.projectId', '=', 'projects.id')
+                ->select('products.*', 'categories.categoryName', 'manufacturers.manufacturerName','projects.name as projectName')
                 ->where('products.id', $product_id)
                 ->first();
         return view('products.show', ['products' => $productById]);
@@ -185,6 +197,9 @@ class ProductController extends Controller
     public function edit(Product $product)
 
     {
+
+        $projectInfo = new UserProjectInfo;
+ 
         $product_id = $product->id;        
         $productById = DB::table('products')
                 ->join('categories', 'products.categoryId', '=', 'categories.id')
@@ -193,12 +208,12 @@ class ProductController extends Controller
                 ->where('products.id', $product_id)
                 ->first();
 
-        $manufacturers = Manufacturer::where('publicationStatus', 1)->get();
-        $categorys = Category::where('publicationStatus', 1)->get();
+        $manufacturers = Manufacturer::where('publicationStatus', 1)->whereIn('projectId', $projectInfo->getUserProjectId()->pluck('project_id'))->get();
+        $categorys = Category::where('publicationStatus', 1)->whereIn('projectId', $projectInfo->getUserProjectId()->pluck('project_id'))->get();
         
         // dd($productById);
 
-        return view('products.edit',['product' => $productById,'manufacturers' => $manufacturers, 'categorys' => $categorys]);
+        return view('products.edit',['product' => $productById,'manufacturers' => $manufacturers, 'categorys' => $categorys,'Projects'=>$projectInfo->getUserProjectName()]);
 
     }    
 

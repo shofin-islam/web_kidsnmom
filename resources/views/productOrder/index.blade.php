@@ -118,6 +118,7 @@
                         <th>Payable</th>
                         <th>Paid</th>
                         <th>Due</th>
+                        <th>Project</th>
                         <th>Status</th>
                         <th>Action</th>
                     </tr>
@@ -134,24 +135,24 @@
                         <td>{{ $order->payable }}</td>
                         <td>{{ $order->paid }}</td>
                         <td>{{ $order->due }}</td>
+                        <td>{{ $order->projectName }}</td>
                         <td>{{ $order->deletionStatus==1 ? 'Deleted' : ''}}</td>
                         <td>
                             <a href="{{ route('sales.show',$order->id) }}" class="btn btn-info" title="View"><span class="glyphicon glyphicon-zoom-in"></span>
                             </a>
-                            <a href="{{ route('sales.edit',$order->id) }}" class="btn btn-success" title="Edit">
-                             <span class="glyphicon glyphicon-edit"></span>
-                            </a>
+                            @can('product-order-edit')
                             @if($order->due>0)
                             <a href="{{ route('sales.edit',$order->id) }}" class="btn btn-success" title="Pay">
-                             <span class="glyphicon glyphicon-plus-sign"></span>
+                             <span class="glyphicon glyphicon-edit"></span>
                             </a>
                             @endif
+                            @endcan
                             <form action="{{ route('sales.destroy',$order->id) }}" method="POST">
                             @csrf
 
                             @method('DELETE')
 
-                            @can('product-delete')
+                            @can('product-order-delete')
 
                             <button type="submit" class="btn btn-danger">Delete</button>
 

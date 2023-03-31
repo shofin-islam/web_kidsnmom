@@ -11,6 +11,8 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 use App\Models\User;
+use App\Models\Project;
+use App\Models\ProjectUser;
 
 use Spatie\Permission\Models\Role;
 
@@ -40,11 +42,11 @@ class UserController extends Controller
 
     {
 
-        $data = User::orderBy('id','DESC')->paginate(5);
+        $data = User::orderBy('id','DESC')->paginate(10);
 
         return view('users.index',compact('data'))
 
-            ->with('i', ($request->input('page', 1) - 1) * 5);
+            ->with('i', ($request->input('page', 1) - 1) * 10);
 
     }
 
@@ -65,8 +67,9 @@ class UserController extends Controller
     {
 
         $roles = Role::pluck('name','name')->all();
+        $projects = Project::all();
 
-        return view('users.create',compact('roles'));
+        return view('users.create',compact('roles','projects'));
 
     }
 
@@ -96,6 +99,8 @@ class UserController extends Controller
 
             'password' => 'required|same:confirm-password',
 
+            'projectId' => 'required|not_in:0',
+
             'roles' => 'required'
 
         ]);
@@ -112,7 +117,12 @@ class UserController extends Controller
 
         $user->assignRole($request->input('roles'));
 
-    
+        $uID = $user->getAttribute('id');
+        
+        $project = new ProjectUser();
+        $project->user_id = $uID;
+        $project->project_id = $request->projectId;
+        $project->save();
 
         return redirect()->route('users.index')
 
@@ -168,9 +178,9 @@ class UserController extends Controller
 
         $userRole = $user->roles->pluck('name','name')->all();
 
-    
-
-        return view('users.edit',compact('user','roles','userRole'));
+        $projects = Project::all();
+        // dd($projects);
+        return view('users.edit',compact('user','roles','userRole','projects'));
 
     }
 
@@ -201,6 +211,7 @@ class UserController extends Controller
             'email' => 'required|email|unique:users,email,'.$id,
 
             'password' => 'same:confirm-password',
+            'projectId' => 'required|not_in:0',
 
             'roles' => 'required'
 
@@ -227,12 +238,12 @@ class UserController extends Controller
         $user->update($input);
 
         DB::table('model_has_roles')->where('model_id',$id)->delete();
-
-    
-
         $user->assignRole($request->input('roles'));
-
-    
+        
+        $project = ProjectUser::where('user_id',$id)->first();
+        $project->user_id = $id;
+        $project->project_id = $request->projectId;
+        $project->save();
 
         return redirect()->route('users.index')
 

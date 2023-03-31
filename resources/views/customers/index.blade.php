@@ -123,22 +123,23 @@
                     <tr>
                         <td>{{ $customer->id }}</td>
                         <td>{{ $customer->name }}</td>
-                        <td>{{ $customer->address }}</td>
+                        <td>{!! $customer->address !!}</td>
                         <td>{{ $customer->phoneNumber }}</td>
-                        <td>{{ $customer->projectId }}</td>
+                        <td>{{ $customer->projectName }}</td>
                         <td>{{ $customer->publicationStatus==1 ? 'Published' : "Unpublished" }}</td>
                         <td><a href="{{ route('customers.show',$customer->id) }}" class="btn btn-info" title="View"><span class="glyphicon glyphicon-zoom-in"></span>
                             </a>
+                            @can('customer-edit')
                             <a href="{{ route('customers.edit',$customer->id) }}" class="btn btn-success" title="Edit">
                              <span class="glyphicon glyphicon-edit"></span>
                             </a>
-                            
+                            @endcan
                             <form action="{{ route('customers.destroy',$customer->id) }}" method="POST">
                             @csrf
 
                             @method('DELETE')
 
-                            @can('product-delete')
+                            @can('customer-delete')
 
                             <button type="submit" class="btn btn-danger">Delete</button>
 

@@ -6,10 +6,26 @@ use App\Models\Customer;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreCustomerRequest;
 use App\Http\Requests\UpdateCustomerRequest;
+use App\Classes\UserProjectInfo;
 use DB;
 
 class CustomerController extends Controller
 {
+
+    function __construct()
+
+    {
+
+         $this->middleware('permission:customer-list|customer-create|customer-edit|customer-delete', ['only' => ['index','show']]);
+
+         $this->middleware('permission:customer-create', ['only' => ['create','store']]);
+
+         $this->middleware('permission:customer-edit', ['only' => ['edit','update']]);
+
+         $this->middleware('permission:customer-delete', ['only' => ['destroy']]);
+
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -17,15 +33,14 @@ class CustomerController extends Controller
      */
     public function index()
     {
+        $projectInfo = new UserProjectInfo;
         $customers = Customer::select(
-            'id',
-            'projectId',
-            'name', 
-            'address',
-            'phoneNumber',
-            'publicationStatus'
+            'customers.*',
+            'projects.name as projectName'
         )
-        ->where('deletionStatus',0)
+        ->join('projects', 'customers.projectId', '=', 'projects.id')
+        ->whereIn('customers.projectId', $projectInfo->getUserProjectId()->pluck('project_id'))
+        ->where('customers.deletionStatus',0)
         ->paginate(100);
     // dd($customers);
     return view('customers.index',compact('customers'));
@@ -38,7 +53,9 @@ class CustomerController extends Controller
      */
     public function create()
     {
-        return view('customers.create');
+        $projectInfo = new UserProjectInfo;
+
+        return view('customers.create',['Projects'=>$projectInfo->getUserProjectName()]);
     }
 
     /**
@@ -99,13 +116,15 @@ class CustomerController extends Controller
      */
     public function edit(Customer $customer)
     {
+        $projectInfo = new UserProjectInfo;
+
         $customer_id = $customer->id;
         $customerById = DB::table('customers')
                 ->select('customers.*')
                 ->where('customers.id', $customer_id)
                 ->first();
                 // dd($customerById);
-        return view('customers.edit', ['customer' => $customerById]);
+        return view('customers.edit', ['customer' => $customerById,'Projects'=>$projectInfo->getUserProjectName()]);
     }
 
 

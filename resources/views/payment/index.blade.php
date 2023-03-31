@@ -113,8 +113,10 @@
                         <th>Product</th>
                         <th>Customer</th>
                         <th>Amount</th>
+                        <th>Order ID</th>
                         <th>Method</th>
                         <th>Reference</th>
+                        <th>Project</th>
                         <th>Status</th>
                         <th>Action</th>
                     </tr>
@@ -126,16 +128,32 @@
                         <td>{{ $payment->productName }}</td>
                         <td>{{ $payment->customerName }}</td>
                         <td>{{ $payment->amount }}</td>
+                        <td>{{ $payment->orderId }}</td>
                         <td>{{ $payment->methodName }}</td>
                         <td>{{ $payment->reference }}</td>
+                        <td>{{ $payment->projectName }}</td>
                         
                         <td>{{ $payment->deletionStatus==1 ? 'Deleted' : ''}}</td>
                         <td>
                             <a href="{{ route('payment.show',$payment->id) }}" class="btn btn-info" title="View"><span class="glyphicon glyphicon-zoom-in"></span>
                             </a>
+                            @can('payment-edit')
                             <a href="{{ route('payment.edit',$payment->id) }}" class="btn btn-success" title="Edit">
                              <span class="glyphicon glyphicon-edit"></span>
                             </a>
+                            @endcan
+
+                            <form action="{{ route('payment.destroy',$payment->id) }}" method="POST">
+                            @csrf
+
+                            @method('DELETE')
+
+                            @can('payment-delete')
+
+                            <button type="submit" class="btn btn-danger">Delete</button>
+
+                            @endcan
+                            </form>
                         </td>    
                     </tr>
                     @endforeach

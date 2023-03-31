@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Models\Expense;
 use App\Models\ProductOrder;
 use App\Models\Payment;
+use App\Classes\UserProjectInfo;
 use DB;
 
 use Illuminate\Http\Request;
@@ -12,10 +13,12 @@ class DashboardController extends Controller
 {
     public function getLastMonthData()
     {
+      $projectInfo = new UserProjectInfo;
 
         $expenses = Expense::whereMonth('created_at', date('m'))
         ->whereYear('created_at', date('Y'))
         ->where('deletionStatus',0)
+        // ->whereIn('projectId', $projectInfo->getUserProjectId()->pluck('project_id'))
         ->get(['amount','created_at']);
         
         $total = 0;
@@ -37,7 +40,7 @@ class DashboardController extends Controller
 
           // Product::select('productQuantity')->where('deletionStatus',0)->get();
 
-          $productStock = DB::table('products')->where('deletionStatus',0)->sum('productQuantity');
+        $productStock = DB::table('products')->where('deletionStatus',0)->sum('productQuantity');
 
         $ordersData = ProductOrder::whereMonth('created_at', date('m'))
         ->whereYear('created_at', date('Y'))

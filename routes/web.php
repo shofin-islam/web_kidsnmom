@@ -30,8 +30,17 @@ use Spatie\Activitylog\Models\Activity;
 |--------------------------------------------------------------------------
 | return view('welcome'); to get the admin login section
 */
+
 Route::get('/', function () {
-    return view('welcome');
+
+    /*
+    |--------------------------------------------------------------------------
+    | return view('welcome'); to get the multi auth admin and user login section
+    */
+
+    // return view('welcome');
+
+    return view('auth.login');
 });
 
 /*

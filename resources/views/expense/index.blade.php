@@ -123,20 +123,21 @@
                         <td>{{ $expense->id }}</td>
                         <td>{{ $expense->name }}</td>
                         <td>{{ $expense->amount }}</td>
-                        <td>{{ $expense->projectId }}</td>
+                        <td>{{ $expense->projectName }}</td>
                         <td>{{ $expense->details }}</td>
-                        <td><a href="{{ route('expense.show',$expense->id) }}" class="btn btn-info" title="View"><span class="glyphicon glyphicon-zoom-in"></span>
-                            </a>
+                        <td>
+                            @can('expense-edit')
                             <a href="{{ route('expense.edit',$expense->id) }}" class="btn btn-success" title="Edit">
                              <span class="glyphicon glyphicon-edit"></span>
                             </a>
-                            
+                            @endcan
+
                             <form action="{{ route('expense.destroy',$expense->id) }}" method="POST">
                             @csrf
 
                             @method('DELETE')
 
-                            @can('product-delete')
+                            @can('expense-delete')
 
                             <button type="submit" class="btn btn-danger">Delete</button>
 

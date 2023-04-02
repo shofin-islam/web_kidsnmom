@@ -160,7 +160,7 @@
                                     <select class="form-control select2" name="manufacturerId">
                                             <option value="0"> --- Select Manufacturer Name --- </option>
                                             @foreach($manufacturers as $manufacturer)
-                                            <option value="{{ $manufacturer->id }}">{{ $manufacturer->manufacturerName }}</option>
+                                            <option value="{{ $manufacturer->id }}">{{ $manufacturer->name }}</option>
                                             @endforeach
                                     </select>
                                 <span class="text-danger">{{ $errors->has('manufacturerId') ? $errors->first('manufacturerId') : ''}} </span>
@@ -175,7 +175,9 @@
                                 </div>
                                     <select class="form-control select2" name="projectId" id="projectId">
                                             <option value="0"> --- Select Project --- </option>
-                                            <option value="1">Master Project</option>
+                                            @foreach($Projects as $p)
+                                            <option value="{{ $p->pId }}">{{ $p->pName }}</option>
+                                            @endforeach
                                     </select>
                                 <span class="text-danger">{{ $errors->has('projectId') ? $errors->first('projectId') : ''}} </span>
                             </div>

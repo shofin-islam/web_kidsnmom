@@ -3,74 +3,95 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Manufacturer;
+use App\Models\Manufacturer;
 use DB;
+use App\Classes\UserProjectInfo;
 
 class ManufacturerController extends Controller {
 
-    public function createManufacturer() {
-        return view('admino.manufacturer.createManufacturer');
+    public function index() 
+    {
+        $projectInfo = new UserProjectInfo;
+
+            $manufacturers = Manufacturer::select(
+                'manufacturers.*',
+                'projects.name as projectName'
+            )
+            ->join('projects', 'manufacturers.projectId', '=', 'projects.id')
+            ->whereIn('projectId', $projectInfo->getUserProjectId()->pluck('project_id'))
+            ->where('publicationStatus', 1)
+            ->where('deletionStatus', 0)
+            ->get();
+
+            return view('manufacturer.index',compact('manufacturers'));
     }
 
-    public function storeManufacturer(Request $request) {
-        $this->validate($request, [
-            'manufacturerName' => 'required',
-            'manufacturerDescription' => 'required',
+    public function create() 
+    {
+        $projectInfo = new UserProjectInfo;
+        return view('manufacturer.create',['Projects'=>$projectInfo->getUserProjectName()]);
+    }
+
+    public function store(Request $request) 
+    {
+        request()->validate([
+            'name' => 'required',
+            'projectId' => 'required|not_in:0',
+            'details'=> 'required',
             'publicationStatus' => 'required|not_in:0',
         ]);
+
+        // Product::create($request->all());
+        $manufacturer = new Manufacturer();
+
+        $manufacturer->name = $request->name;
+        $manufacturer->projectId = $request->projectId;
+        $manufacturer->details = $request->details;
+        $manufacturer->publicationStatus = $request->publicationStatus;
+        $manufacturer->save();
         
-//        dd($request->all());
-//        return $request->all();
-//        $category = new Category();
-//        $category->category_name= $request->category_name;
-//        $category->category_description= $request->category_description;
-//        $category->publication_status= $request->publication_status;
-//        $category->save();
-//        return 'Save Successfully';
-        DB::table('manufacturers')->insert([
-            'manufacturerName'=> $request->manufacturerName,
-            'manufacturerDescription'=> $request->manufacturerDescription,
-            'publicationStatus'=> $request->publicationStatus,
+        return redirect()->route('manufacturer')->with('success','Manufacturer created successfully.');
+    
+    }
+
+
+    public function edit($id) {
+
+        $projectInfo = new UserProjectInfo;
+    
+        $manufacturerById = Manufacturer::where('id',$id)->first();
+        // dd($manufacturerById->projectId);
+
+        return view('manufacturer.edit',['manufacturer' => $manufacturerById, 'Projects'=>$projectInfo->getUserProjectName()]);
+
+    }
+
+    public function update(Request $request, $id) {
+        request()->validate([
+            'name' => 'required',
+            'projectId' => 'required|not_in:0',
+            'details'=> 'required',
+            'publicationStatus' => 'required|not_in:0',
         ]);
-//        Manufacturer::create($request->all());
 
-        return redirect('/manufacturer/add')->withSuccess('Save Successfully');
+        // dd($id);
+        $manufacturer =  Manufacturer::where('id',$id)->first();
+
+        $manufacturer->name = $request->name;
+        $manufacturer->projectId = $request->projectId;
+        $manufacturer->details = $request->details;
+        $manufacturer->publicationStatus = $request->publicationStatus;
+        $manufacturer->save();
+        
+        return redirect()->route('manufacturer')->with('success','Manufacturer Info Updated Successfully.');
     }
 
-    public function manageManufacturer() {
-//        $categories = Category::all()->where('publicationStatus',1);
-        $manufacturers = Manufacturer::all();
-
-        return view('admino.manufacturer.manageManufacturer', ['manufacturers' => $manufacturers]);
-    }
-
-    public function editManufacturer($id) {
-
-        $manufacturerById = Manufacturer::where('id', $id)->first();
-
-        return view('admino.manufacturer.editManufacturer', ['manufacturerById' => $manufacturerById]);
-    }
-
-    public function updateManufacturer(Request $request) {
-//    using query builder
-//        $manufacturer = Manufacturer::find($request->id);
-//        $manufacturer->manufacturerName= $request->manufacturerName;
-//        $manufacturer->manufacturerDescription= $request->manufacturerDescription;
-//        $manufacturer->publicationStatus= $request->publicationStatus;
-//        $manufacturer->save();
-//        return redirect('/manufacturer/manage')->withSuccess('Update Successfully');
-
-        $newData = $request->all();
-        $manufacturer = Manufacturer::find($request->id);
-        $manufacturer->update($newData);
-        return redirect('/manufacturer/manage')->withSuccess('Update Successfully');
-    }
-
-    public function deleteManufacturer($id) {
+    public function destroy($id) {
 
         $Manufacturer = Manufacturer::find($id);
-        $Manufacturer->delete();
-        return redirect('/manufacturer/manage')->withSuccess('Delete Successfully');
+        $Manufacturer->deletionStatus=1;
+        $Manufacturer->save();
+        return redirect()->route('manufacturer')->withSuccess('Delete Successfully');
     }
 
 }

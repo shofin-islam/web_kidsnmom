@@ -5,10 +5,24 @@ namespace App\Http\Controllers;
 use App\Models\Expense;
 use Illuminate\Http\Request;
 use App\Models\ExpenseType;
+use App\Classes\UserProjectInfo;
 use DB;
 
 class ExpenseController extends Controller
 {
+    function __construct()
+
+    {
+
+         $this->middleware('permission:expense-list|expense-create|expense-edit|expense-delete', ['only' => ['index','show']]);
+
+         $this->middleware('permission:expense-create', ['only' => ['create','store']]);
+
+         $this->middleware('permission:expense-edit', ['only' => ['edit','update']]);
+
+         $this->middleware('permission:expense-delete', ['only' => ['destroy']]);
+
+    }
 
     /**
      * Display a listing of the resource.
@@ -17,6 +31,7 @@ class ExpenseController extends Controller
      */
     public function index()
     {
+        $projectInfo = new UserProjectInfo;
 
         $expenses = Expense::select(
             'expenses.id', 
@@ -25,14 +40,14 @@ class ExpenseController extends Controller
             'expenses.amount',
             'expenses.projectId',
             'expense_types.name',
+            'projects.name as projectName'
         )
         ->join('expense_types', 'expenses.type', '=', 'expense_types.id')
+        ->join('projects', 'expenses.projectId', '=', 'projects.id')
+        ->whereIn('expenses.projectId', $projectInfo->getUserProjectId()->pluck('project_id'))
         ->where('expenses.deletionStatus',0)
-        ->paginate(100);
+        ->paginate(2000);
 
-        // $expenses = Expense::where('deletionStatus',0)->get();
-
-    // dd($expenses);
     return view('expense.index',compact('expenses'));
     }
 
@@ -43,10 +58,10 @@ class ExpenseController extends Controller
      */
     public function create()
     {
-        $extypes = ExpenseType::where('deletionStatus',0)->get();
-    // dd($extypes);
+        $projectInfo = new UserProjectInfo;
+        $extypes = ExpenseType::where('deletionStatus',0)->whereIn('projectId', $projectInfo->getUserProjectId()->pluck('project_id'))->get();
 
-        return view('expense.create',compact('extypes'));
+        return view('expense.create',['extypes'=>$extypes ,'Projects'=>$projectInfo->getUserProjectName()]);
     }
 
     /**
@@ -97,18 +112,21 @@ class ExpenseController extends Controller
      */
     public function edit(Expense $expense)
     {
+        $projectInfo = new UserProjectInfo;
+
         $expenseId = $expense->id;
         $expenseById = DB::table('expenses')
                 ->join('expense_types', 'expenses.type', '=', 'expense_types.id')
-                ->select('expenses.*','expense_types.name as name')
+                ->join('projects', 'expenses.projectId', '=', 'projects.id')
+                ->select('expenses.*','expense_types.name as name','projects.name as projectName')
                 ->where('expenses.id', $expenseId)
                 ->first();
 
-        $extypes = ExpenseType::where('deletionStatus', 0)->get();
+        $extypes = ExpenseType::where('deletionStatus', 0)->whereIn('projectId', $projectInfo->getUserProjectId()->pluck('project_id'))->get();
         
         // dd($expenseById);
 
-        return view('expense.edit',['expenseById' => $expenseById,'extypes' => $extypes]);
+        return view('expense.edit',['expenseById' => $expenseById,'extypes' => $extypes,'Projects'=>$projectInfo->getUserProjectName()]);
 
     }
 

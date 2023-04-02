@@ -13,7 +13,10 @@ use DB;
 use Spatie\Activitylog\Models\Activity;
 use Illuminate\Support\Facades\Validator;
 use App\Exports\OrderExport;
+use App\Exports\OrderExportCustom;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Models\ProjectUser;
+use App\Classes\UserProjectInfo;
 
 class ProductOrderController extends Controller
 {
@@ -38,6 +41,8 @@ class ProductOrderController extends Controller
      */
     public function index()
     {
+        $projectInfo = new UserProjectInfo;
+
         $orders = ProductOrder::select(
             'product_orders.id', 
             'product_orders.unit',
@@ -48,10 +53,13 @@ class ProductOrderController extends Controller
             'product_orders.profit',
             'p.name as productName',
             'c.name as customerName',
-            'c.phoneNumber as CustomersContact'
+            'c.phoneNumber as CustomersContact',
+            'projects.name as projectName',
         )
         ->join('products as p', 'p.id', '=', 'product_orders.productId')
         ->join('customers as c', 'c.id', '=', 'product_orders.customerId')
+        ->join('projects', 'product_orders.projectId', '=', 'projects.id')
+        ->whereIn('product_orders.projectId', $projectInfo->getUserProjectId()->pluck('project_id'))
         ->where('product_orders.deletionStatus',0)
         ->orderBy('id', 'asc')
         ->paginate(1000);
@@ -65,12 +73,18 @@ class ProductOrderController extends Controller
      */
     public function create()
     {
+        $projectInfo = new UserProjectInfo;
+
         $products = Product::where('publicationStatus', 1)
                                 ->where('deletionStatus',0)
+                                ->whereIn('projectId', $projectInfo->getUserProjectId()->pluck('project_id'))
                                 ->get();
-        $customers = Customer::where('publicationStatus', 1)->where('deletionStatus',0)->get();
+        $customers = Customer::where('publicationStatus', 1)
+        ->where('deletionStatus',0)
+        ->whereIn('projectId', $projectInfo->getUserProjectId()->pluck('project_id'))
+        ->get();
         $methods = PaymentMethod::where('publicationStatus', 1)->where('deletionStatus',0)->get();
-        return view('productOrder.create',['products' => $products, 'customers' => $customers,'methods'=>$methods]);
+        return view('productOrder.create',['products' => $products, 'customers' => $customers,'methods'=>$methods,'Projects'=>$projectInfo->getUserProjectName()]);
     }
 
     /**
@@ -81,10 +95,16 @@ class ProductOrderController extends Controller
      */
     public function store(Request $request)
     {
-
+        request()->validate([
+            'productId' => 'required|not_in:0',
+            'customerId' => 'required|not_in:0',
+            'unit' => 'required|min:1|numeric',
+            'dueDate' => 'required|date|after_or_equal:today',
+            'methodId' => 'required|not_in:0',
+        ]);
         
         $mdy = explode('/', $request->dueDate); // split the string into an array of parts
-        $ymd = $mdy[2] . '/' . $mdy[0] . '/' . $mdy[1]; // create a new string with the parts rearranged
+        $ymd = $mdy[2] . '-' . $mdy[0] . '-' . $mdy[1].' 23:59:59'; // create a new string with the parts rearranged
         $pId = $request->productId;
         $cId = $request->customerId;
         $unit = $request->unit;
@@ -100,7 +120,6 @@ class ProductOrderController extends Controller
         request()->validate([
             'productId' => 'required|not_in:0',
             'customerId' => 'required|not_in:0',
-            'projectId' => 'required|not_in:0',
             'unit' => ['required','min:1','numeric', function ($attribute, $value, $fail)use ($productById) {
                 $available = $productById->productQuantity;
                 if ($value > $available ) {
@@ -120,6 +139,7 @@ class ProductOrderController extends Controller
 
         $unitPrice = $productById->salesPrice;
         $productCode = $productById->productCode;
+        $productProject = $productById->projectId;
         $subTotal = $unit*$unitPrice;
         $payble=$subTotal-$request->flatDiscount;
         $paidAmount = $request->paid;
@@ -134,7 +154,7 @@ class ProductOrderController extends Controller
         $productOrder->subTotal = $subTotal;
         $productOrder->customerDetails = json_encode($customerInfo);
         $productOrder->productDetails = json_encode($productById);
-        $productOrder->projectId = $request->projectId;
+        $productOrder->projectId = $productProject;
         $productOrder->flatDiscount = $request->flatDiscount;
         $productOrder->payable = $payble;
         $productOrder->paid = $paidAmount;
@@ -210,10 +230,12 @@ class ProductOrderController extends Controller
             'p.name as productName',
             'p.productCode as productCode',
             'c.name as customerName',
-            'c.phoneNumber as CustomersContact'
+            'c.phoneNumber as CustomersContact',
+            'projects.name as projectName'
         )
         ->join('products as p', 'p.id', '=', 'product_orders.productId')
         ->join('customers as c', 'c.id', '=', 'product_orders.customerId')
+        ->join('projects', 'product_orders.projectId', '=', 'projects.id')
         ->where('product_orders.id',$id)
         ->first();
         
@@ -236,6 +258,8 @@ class ProductOrderController extends Controller
      */
     public function edit($id)
     {       
+        $projectInfo = new UserProjectInfo;
+
         $order = ProductOrder::select(
             'product_orders.*')
         ->where('product_orders.id',$id)
@@ -243,10 +267,16 @@ class ProductOrderController extends Controller
         $productDetails = Product::where('id',$order->productId)->first();
         $productDetails= json_encode($productDetails);
         // dd($productDetails);
-        $products = Product::where('publicationStatus', 1)->get();
-        $customers = Customer::where('publicationStatus', 1)->get();
+        $products = Product::where('publicationStatus', 1)
+        ->where('deletionStatus',0)
+        ->whereIn('projectId', $projectInfo->getUserProjectId()->pluck('project_id'))
+        ->get();
+        $customers = Customer::where('publicationStatus', 1)
+        ->where('deletionStatus',0)
+        ->whereIn('projectId', $projectInfo->getUserProjectId()->pluck('project_id'))
+        ->get();
 
-        return view('productOrder.edit',['productDetails' => $productDetails,'order' => $order,'products' => $products, 'customers' => $customers]);
+        return view('productOrder.edit',['productDetails' => $productDetails,'order' => $order,'products' => $products, 'customers' => $customers,'Projects'=>$projectInfo->getUserProjectName()]);
 
     }
 
@@ -259,8 +289,12 @@ class ProductOrderController extends Controller
      */
     public function update(Request $request, $id)
     {
+        request()->validate([
+            'dueDate' => 'required|date|after_or_equal:today'
+        ]);
+        
         $mdy = explode('/', $request->dueDate); // split the string into an array of parts
-        $ymd = $mdy[2] . '/' . $mdy[0] . '/' . $mdy[1]; 
+        $ymd = $mdy[2] . '-' . $mdy[0] . '-' . $mdy[1].' 23:59:59';
 
         $pId = $request->productId;
         $cId = $request->customerId;
@@ -283,10 +317,8 @@ class ProductOrderController extends Controller
                       $fail($attribute.' must be same.');
                  }
            }],
-            'projectId' => 'required|not_in:0',
+           'dueDate' => 'required|date|after_or_equal:today'
         ]);
-        
-
         
         $productOrder->dueDate = $ymd;
         $productOrder->note = $request->note;
@@ -332,7 +364,10 @@ class ProductOrderController extends Controller
 
     {
 
-        return Excel::download(new OrderExport, 'Due_Customers.xlsx');
+        $mdy3 = explode(' ', now());
+        $fileName = $mdy3[0];
+        $fileName ='Due_Customers_'.$fileName;
+        return Excel::download(new OrderExport, $fileName.'.xlsx');
         // return Excel::create('itsolutionstuff_example', function($excel) use ($data) {
 
         //     $excel->sheet('mySheet', function($sheet) use ($data)
@@ -344,6 +379,29 @@ class ProductOrderController extends Controller
         //     });
     
         //    })->download("pdf");
+
+    }
+
+    public function exportSalesData(Request $request ) 
+
+    {
+
+        request()->validate([
+            'startDate' => 'required|date',
+            'endDate' => 'required|date'
+        ]);
+        
+        $mdy = explode('/', $request->startDate); // split the string into an array of parts
+        $start = $mdy[2] . '-' . $mdy[0] . '-' . $mdy[1].' 00:00:00';
+
+        $mdy2 = explode('/', $request->endDate); // split the string into an array of parts
+        $end = $mdy2[2] . '-' . $mdy2[0] . '-' . $mdy2[1].' 23:59:59';
+        
+        $mdy3 = explode(' ', now());
+        $fileName = $mdy3[0];
+        $fileName ='Sales_Data_'.$fileName;
+
+        return Excel::download(new OrderExportCustom($start,$end), $fileName.'.xlsx');
 
     }
 }

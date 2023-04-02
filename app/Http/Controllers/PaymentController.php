@@ -9,6 +9,7 @@ use App\Models\Customer;
 use App\Models\PaymentMethod;
 use App\Models\ProductOrder;
 use Illuminate\Support\Facades\Validator;
+use App\Classes\UserProjectInfo;
 
 class PaymentController extends Controller
 {
@@ -34,18 +35,22 @@ class PaymentController extends Controller
      */
     public function index()
     {
-        
+        $projectInfo = new UserProjectInfo;
         $payments = Payment::select(
             'payments.*', 
             'p.name as productName',
             'c.name as customerName',
             'm.methodName as methodName',
+            'projects.name as projectName',
         )
         ->join('products as p', 'p.id', '=', 'payments.productId')
         ->join('customers as c', 'c.id', '=', 'payments.customerId')
         ->join('payment_methods as m', 'm.id', '=', 'payments.paymentMethod')
-        ->orderBy('id', 'asc')
-        ->paginate(100);
+        ->join('projects', 'payments.projectId', '=', 'projects.id')
+        ->where('payments.deletionStatus', 0)
+        ->whereIn('payments.projectId', $projectInfo->getUserProjectId()->pluck('project_id'))
+        ->orderBy('id', 'desc')
+        ->paginate(3000);
 
     return view('payment.index',compact('payments')); 
     }
@@ -57,6 +62,8 @@ class PaymentController extends Controller
      */
     public function create()
     {
+        $projectInfo = new UserProjectInfo;
+
         $productOrders = ProductOrder::select(
                         'product_orders.id',
                         'product_orders.due',
@@ -65,6 +72,7 @@ class PaymentController extends Controller
                     )
                     ->join('products as p', 'p.id', '=', 'product_orders.productId')
                     ->join('customers as c', 'c.id', '=', 'product_orders.customerId')
+                    ->whereIn('product_orders.projectId', $projectInfo->getUserProjectId()->pluck('project_id'))
                     ->get();
         $methods = PaymentMethod::where('publicationStatus', 1)->get();
         return view('payment.create',['methods' => $methods,'orders'=>$productOrders]);
@@ -83,7 +91,7 @@ class PaymentController extends Controller
         
         request()->validate([
             'orderId' => 'required|not_in:0',
-            'projectId' => 'required|not_in:0',
+            
             // 'amount' => 'numeric|min:0|between:1,999999999',
             'amount' => ['required','numeric','between:0,999999999', function ($attribute, $value, $fail)use ($pOrder) {
                    $due=$pOrder->due;
@@ -103,7 +111,7 @@ class PaymentController extends Controller
         $payment->productId = $pOrder->productId;
         $payment->customerId = $pOrder->customerId;
 
-        $payment->projectId = $request->projectId;
+        $payment->projectId = $pOrder->projectId;
         $payment->paymentMethod = $request->paymentMethod;
         $payment->amount = $reqAmount;
         $payment->reference = $request->reference;
@@ -208,7 +216,6 @@ class PaymentController extends Controller
         
         request()->validate([
             'orderId' => 'required|not_in:0',
-            'projectId' => 'required|not_in:0',
             // 'amount' => 'numeric|min:0|between:1,999999999',
             'amount' => ['required','integer', function ($attribute, $value, $fail)use ($pOrder) {
                    $due=$pOrder->due;
@@ -233,7 +240,7 @@ class PaymentController extends Controller
         $payment->orderId = $request->orderId;
         $payment->productId = $pOrder->productId;
         $payment->customerId = $pOrder->customerId;
-        $payment->projectId = $request->projectId;
+        $payment->projectId = $pOrder->projectId;
         $payment->paymentMethod = $request->paymentMethod;
         $payment->amount = $request->amount;
         $payment->reference = $request->reference;

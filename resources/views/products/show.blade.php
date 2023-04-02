@@ -54,6 +54,22 @@
                                     <th>Sales Price </th>
                                     <th>{{ $products->salesPrice }}</th>
                                 </tr>
+                                <tr>
+                                    <th>Discount Price </th>
+                                    <th>{{ $products->discountPrice }}</th>
+                                </tr>
+                                <tr>
+                                    <th>Total Price </th>
+                                    <th>{{ $products->totalAmount }}</th>
+                                </tr>
+                                <tr>
+                                    <th>Due Price </th>
+                                    <th>{{ $products->dueAmount }}</th>
+                                </tr>
+                                <tr>
+                                    <th>Project Name </th>
+                                    <th>{{ $products->projectName }}</th>
+                                </tr>
                                 
                                 <tr>
                                     <th>Product Description</th>

@@ -1,13 +1,14 @@
 <?php
 
 namespace App\Models;
-
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Manufacturer extends Model
 {
-   use HasFactory;
+    use HasFactory;
+    
+    protected $table = 'manufacturers';
 
-   protected $fillable=['manufacturerName','manufacturerDescription','publication_status'];
 }
+

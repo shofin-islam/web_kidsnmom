@@ -26,7 +26,7 @@ return new class extends Migration
             $table->float('payable', 10, 2)->default(0);
             $table->float('paid', 10, 2)->default(0);
             $table->float('due', 10, 2)->default(0);
-            $table->date('dueDate')->default(DB::raw('CURRENT_DATE'));
+            $table->datetime('dueDate')->default(now());
             $table->float('profit', 10, 2)->default(0);
             $table->text('note')->nullable();
             $table->tinyInteger('deletionStatus')->default(0);

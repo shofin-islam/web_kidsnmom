@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Models\Expense;
 use App\Models\ProductOrder;
 use App\Models\Payment;
+use App\Classes\UserProjectInfo;
 use DB;
 
 use Illuminate\Http\Request;
@@ -12,10 +13,12 @@ class DashboardController extends Controller
 {
     public function getLastMonthData()
     {
+      $projectInfo = new UserProjectInfo;
 
         $expenses = Expense::whereMonth('created_at', date('m'))
         ->whereYear('created_at', date('Y'))
         ->where('deletionStatus',0)
+        ->whereIn('projectId', $projectInfo->getUserProjectId()->pluck('project_id'))
         ->get(['amount','created_at']);
         
         $total = 0;
@@ -27,6 +30,7 @@ class DashboardController extends Controller
                         ->whereMonth('created_at', '=', date('m'))
                         ->whereYear('created_at', '=', date('Y'))
                         ->where('deletionStatus',0)
+                        ->whereIn('projectId', $projectInfo->getUserProjectId()->pluck('project_id'))
                         ->get();
 
         $totalPaymentReceived=0;                
@@ -37,11 +41,15 @@ class DashboardController extends Controller
 
           // Product::select('productQuantity')->where('deletionStatus',0)->get();
 
-          $productStock = DB::table('products')->where('deletionStatus',0)->sum('productQuantity');
+        $productStock = DB::table('products')
+        ->where('deletionStatus',0)
+        ->whereIn('projectId', $projectInfo->getUserProjectId()->pluck('project_id'))
+        ->sum('productQuantity');
 
         $ordersData = ProductOrder::whereMonth('created_at', date('m'))
         ->whereYear('created_at', date('Y'))
         ->where('deletionStatus',0)
+        ->whereIn('projectId', $projectInfo->getUserProjectId()->pluck('project_id'))
         ->get(['payable','paid','due','created_at']);
         
         $payable = 0;
@@ -61,17 +69,18 @@ class DashboardController extends Controller
             "productStock" => $productStock,
           );
 
-          // except current month data
+        //   except current month data
         //   Payment::whereYear('created_at', '<>', now()->year)
         //          ->orWhereMonth('created_at', '<>', now()->month)
         //          ->get();
 
-          //current month payment
+          //current month payment for old orders
           $currentMonthData = Payment::select('payments.id','payments.orderId','payments.amount')
                         ->join('product_orders as po', 'po.id', '=', 'payments.orderId')
                         ->whereMonth('payments.created_at', '=', date('m'))
                         ->whereYear('payments.created_at', '=', date('Y'))
                         ->where('payments.deletionStatus',0)
+                        ->whereIn('payments.projectId', $projectInfo->getUserProjectId()->pluck('project_id'))
                         ->where(function ($query) {
                             $query->whereYear('po.created_at', '<>', now()->year)
                                   ->orWhereMonth('po.created_at', '<>', now()->month);
@@ -90,12 +99,15 @@ class DashboardController extends Controller
 
     public function getDueCustomerList()
     {
+        $projectInfo = new UserProjectInfo;
+
         $dueCustomersData = ProductOrder::select(
             'product_orders.id', 
             'product_orders.unit',
             'product_orders.payable',
             'product_orders.paid',
             'product_orders.due',
+            'product_orders.dueDate',
             'p.name as productName',
             'c.name as customerName',
             'c.phoneNumber as CustomersContact'
@@ -103,10 +115,44 @@ class DashboardController extends Controller
         )
         ->join('products as p', 'p.id', '=', 'product_orders.productId')
         ->join('customers as c', 'c.id', '=', 'product_orders.customerId')
+        ->whereIn('product_orders.projectId', $projectInfo->getUserProjectId()->pluck('project_id'))
         ->where([['product_orders.due','>',0]])
         ->get();
         
         return view('reports.customer_due',['dueCustomersData'=>$dueCustomersData]);
+        
+    }
+
+    public function getNextRecoveryCustomerslist()
+    {
+
+        $projectInfo = new UserProjectInfo;
+
+        $dueCustomersData = ProductOrder::select(
+            'product_orders.id', 
+            'product_orders.unit',
+            'product_orders.payable',
+            'product_orders.paid',
+            'product_orders.due',
+            'product_orders.dueDate',
+            'p.name as productName',
+            'c.name as customerName',
+            'c.phoneNumber as CustomersContact'
+        )
+        ->join('products as p', 'p.id', '=', 'product_orders.productId')
+        ->join('customers as c', 'c.id', '=', 'product_orders.customerId')
+        ->where([['product_orders.due','>',0]])
+        ->whereBetween('product_orders.dueDate', [now(), now()->addDays(7)])
+        ->whereIn('product_orders.projectId', $projectInfo->getUserProjectId()->pluck('project_id'))
+        ->get();
+        
+        return view('reports.upcoming_customer_due',['dueCustomersData'=>$dueCustomersData]);
+        
+    }
+
+    public function getOrderlist()
+    {
+        return view('reports.order_range_view');
         
     }
 }

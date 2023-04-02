@@ -1,0 +1,58 @@
+<?php
+
+namespace App\Exports;
+
+use App\Models\ProductOrder;
+use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+use App\Classes\UserProjectInfo;
+
+class OrderExportCustom implements FromCollection,WithHeadings
+{
+
+    private $startDate;
+    private $endDate;
+
+    public function __construct($startDate, $endDate)
+    {
+        $this->startDate = $startDate;
+        $this->endDate = $endDate;
+    }
+
+    /**
+    * @return \Illuminate\Support\Collection
+    */
+    public function collection()
+    {
+        $projectInfo = new UserProjectInfo;
+
+        $dueCustomersData = ProductOrder::select(
+            'product_orders.id',
+            'p.name as productName',
+            'c.name as customerName',
+            'c.phoneNumber as CustomersContact',
+            'product_orders.unit',
+            'product_orders.payable',
+            'product_orders.paid',
+            'product_orders.due',
+            'projects.name as projectName'
+
+        )
+        ->join('products as p', 'p.id', '=', 'product_orders.productId')
+        ->join('customers as c', 'c.id', '=', 'product_orders.customerId')
+        ->join('projects', 'product_orders.projectId', '=', 'projects.id')
+        ->whereBetween('product_orders.created_at', [$this->startDate, $this->endDate])
+        ->whereIn('product_orders.projectId', $projectInfo->getUserProjectId()->pluck('project_id'))
+        ->get();
+
+        return $dueCustomersData;
+    }
+
+    public function headings(): array
+
+    {
+
+        return ["ID","Product","Customer","Phone", "Unit", "Payable","Paid", "due","Project"];
+
+    }
+}

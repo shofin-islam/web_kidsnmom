@@ -4,9 +4,27 @@ namespace App\Http\Controllers;
 
 use App\Models\ExpenseType;
 use Illuminate\Http\Request;
+use App\Classes\UserProjectInfo;
+use DB;
+use Auth;
 
 class ExpenseTypeController extends Controller
 {
+
+    function __construct()
+
+    {
+
+         $this->middleware('permission:expense-type-list|expense-type-create|expense-type-edit|expense-type-delete', ['only' => ['index','show']]);
+
+         $this->middleware('permission:expense-type-create', ['only' => ['create','store']]);
+
+         $this->middleware('permission:expense-type-edit', ['only' => ['edit','update']]);
+
+         $this->middleware('permission:expense-type-delete', ['only' => ['destroy']]);
+
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -14,15 +32,20 @@ class ExpenseTypeController extends Controller
      */
     public function index()
     {
+        $projectInfo = new UserProjectInfo;
+
         $extypes = ExpenseType::select(
-            'id',
-            'projectId',
-            'name', 
-            'details',
-            'publicationStatus'
+            'expense_types.id',
+            'expense_types.projectId',
+            'expense_types.name', 
+            'expense_types.details',
+            'expense_types.publicationStatus',
+            'projects.name as projectName'
         )
-        ->where('deletionStatus',0)
-        ->paginate(100);
+        ->join('projects', 'expense_types.projectId', '=', 'projects.id')
+        ->where('expense_types.deletionStatus',0)
+        ->whereIn('expense_types.projectId', $projectInfo->getUserProjectId()->pluck('project_id'))
+        ->paginate(500);
     // dd($extypes);
     return view('expenseType.index',compact('extypes'));
     }
@@ -34,7 +57,8 @@ class ExpenseTypeController extends Controller
      */
     public function create()
     {
-        return view('expenseType.create');
+        $projectInfo = new UserProjectInfo;
+        return view('expenseType.create',['Projects'=>$projectInfo->getUserProjectName()]);
     }
 
     /**
@@ -79,10 +103,10 @@ class ExpenseTypeController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\ExpenceType  $expenceType
+     * @param  \App\Models\ExpenseType  $expenseType
      * @return \Illuminate\Http\Response
      */
-    public function edit(ExpenceType $expenceType)
+    public function edit(ExpenseType $expenseType)
     {
         //
     }
@@ -91,10 +115,10 @@ class ExpenseTypeController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\ExpenceType  $expenceType
+     * @param  \App\Models\ExpenseType  $expenseType
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, ExpenceType $expenceType)
+    public function update(Request $request, ExpenseType $expenseType)
     {
         //
     }
@@ -102,11 +126,16 @@ class ExpenseTypeController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\ExpenceType  $expenceType
+     * @param  \App\Models\ExpenseType  $expenseType
      * @return \Illuminate\Http\Response
      */
-    public function destroy(ExpenceType $expenceType)
+    public function destroy( $id)
     {
-        //
+        
+        $ext = ExpenseType::find($id);
+        // dd($ext);
+        $ext->deletionStatus = 1;
+        $ext->save();
+        return redirect()->route('expenseType.index')->with('success','Expense Deleted.');
     }
 }

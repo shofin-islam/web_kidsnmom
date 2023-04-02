@@ -95,7 +95,7 @@
                     </div>
                     <div class="center-block" style="text-align: center; margin: 3px;padding: 3px;">
                         <i class="fa fa-tasks"></i>
-                        <h3 class="box-title">Due Customers List</h3><br>
+                        <h3 class="box-title">All Due Customers List</h3><br>
                         
                         @if (session()->has('success'))
                         <div class="alert alert-success" style="margin: 10px;">
@@ -112,10 +112,11 @@
                         <th>#</th>
                         <th>Product</th>
                         <th>Customer</th>
-                        <th>Amount</th>
-                        <th>Method</th>
-                        <th>Reference</th>
-                        <th>Action</th>
+                        <th>Contact Info</th>
+                        <th>Payable</th>
+                        <th>Paid</th>
+                        <th>Due</th>
+                        <th>Due Date</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -124,12 +125,11 @@
                         <td>{{ $dueData->id }}</td>
                         <td>{{ $dueData->productName }}</td>
                         <td>{{ $dueData->customerName }}</td>
+                        <td>{{ $dueData->CustomersContact }}</td>
                         <td>{{ $dueData->payable }}</td>
                         <td>{{ $dueData->paid }}</td>
                         <td>{{ $dueData->due }}</td>
-                        <td>
-                            
-                        </td>
+                        <td>{{ $dueData->dueDate }}</td>
                     </tr>
                     @endforeach
                      

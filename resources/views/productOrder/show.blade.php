@@ -70,6 +70,10 @@
                                     <th>Sales Note</th>
                                     <th>{{ $order->note}}</th>
                                 </tr>
+                                <tr>
+                                    <th>Project</th>
+                                    <th>{{ $order->projectName}}</th>
+                                </tr>
                             </tbody>
                         </table>
                     </div>

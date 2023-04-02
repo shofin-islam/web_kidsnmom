@@ -64,7 +64,7 @@ class ProductController extends Controller
             $products = Product::select(
                 'products.*',
                 'categories.categoryName',
-                'manufacturers.manufacturerName',
+                'manufacturers.name as manufacturerName',
                 'projects.name as projectName'
             )
             ->join('categories', 'products.categoryId', '=', 'categories.id')
@@ -176,7 +176,7 @@ class ProductController extends Controller
                 ->join('categories', 'products.categoryId', '=', 'categories.id')
                 ->join('manufacturers', 'products.manufacturerId', '=', 'manufacturers.id')
                 ->join('projects', 'products.projectId', '=', 'projects.id')
-                ->select('products.*', 'categories.categoryName', 'manufacturers.manufacturerName','projects.name as projectName')
+                ->select('products.*', 'categories.categoryName', 'manufacturers.name as manufacturerName','projects.name as projectName')
                 ->where('products.id', $product_id)
                 ->first();
         return view('products.show', ['products' => $productById]);
@@ -204,7 +204,7 @@ class ProductController extends Controller
         $productById = DB::table('products')
                 ->join('categories', 'products.categoryId', '=', 'categories.id')
                 ->join('manufacturers', 'products.manufacturerId', '=', 'manufacturers.id')
-                ->select('products.*','products.id as pid','categories.id','manufacturers.id','categories.categoryName', 'manufacturers.manufacturerName')
+                ->select('products.*','products.id as pid','categories.id','manufacturers.id','categories.categoryName', 'manufacturers.name as manufacturerName')
                 ->where('products.id', $product_id)
                 ->first();
 

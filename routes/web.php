@@ -12,6 +12,7 @@ use App\Http\Controllers\ProductOrderController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FileController;
+use App\Http\Controllers\ManufacturerController;
 use Spatie\Activitylog\Models\Activity;
 
 
@@ -66,6 +67,8 @@ Route::group(['middleware' => ['auth']], function() {
     Route::get('/dashboard', [DashboardController::class,'getLastMonthData']);
     Route::get('/customers/due', [DashboardController::class,'getDueCustomerList']);
     Route::get('/customers/due/exports', [ProductOrderController::class, 'exportDueCustomers']);
+    Route::get('/sales/exports', [DashboardController::class,'getOrderlist'])->name('sales.exportview');
+    Route::post('/sales/exports', [ProductOrderController::class, 'exportSalesData'])->name('sales.export');
     Route::get('/customers/due/upcomming', [DashboardController::class,'getNextRecoveryCustomerslist']);
 
     Route::get('/files', [FileController::class,'index'])->name('files.index');
@@ -102,6 +105,13 @@ Route::group(['middleware' => ['auth']], function() {
     Route::post('/sales/orderDetails', [ProductOrderController::class, 'orderDetails']);
     Route::resource('sales', ProductOrderController::class);
     Route::resource('payment', PaymentController::class);
+
+    Route::get('/manufacturer', [ManufacturerController::class, 'index'])->name('manufacturer');
+    Route::get('/manufacturer/create', [ManufacturerController::class, 'create'])->name('manufacturer.create');
+    Route::post('/manufacturer/store', [ManufacturerController::class, 'store'])->name('manufacturer.store');
+    Route::get('/manufacturer/edit/{id}', [ManufacturerController::class, 'edit'])->name('manufacturer.edit');
+    Route::post('/manufacturer/update/{id}', [ManufacturerController::class, 'update'])->name('manufacturer.update');
+    Route::get('/manufacturer/destroy/{id}', [ManufacturerController::class, 'destroy'])->name('manufacturer.destroy');
 });
 
 Route::get('/logs', function () {

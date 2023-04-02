@@ -13,6 +13,7 @@ use DB;
 use Spatie\Activitylog\Models\Activity;
 use Illuminate\Support\Facades\Validator;
 use App\Exports\OrderExport;
+use App\Exports\OrderExportCustom;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Models\ProjectUser;
 use App\Classes\UserProjectInfo;
@@ -363,7 +364,10 @@ class ProductOrderController extends Controller
 
     {
 
-        return Excel::download(new OrderExport, 'Due_Customers.xlsx');
+        $mdy3 = explode(' ', now());
+        $fileName = $mdy3[0];
+        $fileName ='Due_Customers_'.$fileName;
+        return Excel::download(new OrderExport, $fileName.'.xlsx');
         // return Excel::create('itsolutionstuff_example', function($excel) use ($data) {
 
         //     $excel->sheet('mySheet', function($sheet) use ($data)
@@ -375,6 +379,29 @@ class ProductOrderController extends Controller
         //     });
     
         //    })->download("pdf");
+
+    }
+
+    public function exportSalesData(Request $request ) 
+
+    {
+
+        request()->validate([
+            'startDate' => 'required|date',
+            'endDate' => 'required|date'
+        ]);
+        
+        $mdy = explode('/', $request->startDate); // split the string into an array of parts
+        $start = $mdy[2] . '-' . $mdy[0] . '-' . $mdy[1].' 00:00:00';
+
+        $mdy2 = explode('/', $request->endDate); // split the string into an array of parts
+        $end = $mdy2[2] . '-' . $mdy2[0] . '-' . $mdy2[1].' 23:59:59';
+        
+        $mdy3 = explode(' ', now());
+        $fileName = $mdy3[0];
+        $fileName ='Sales_Data_'.$fileName;
+
+        return Excel::download(new OrderExportCustom($start,$end), $fileName.'.xlsx');
 
     }
 }

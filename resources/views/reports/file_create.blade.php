@@ -102,15 +102,38 @@
                 <!-- /.box-header -->
             <div class="box-body">
             <div class="col-xs-6">
-        
+                        
                     <form action="{{ route('files.store') }}" method="post" enctype="multipart/form-data">
-            
-                            @csrf
-                            <div class="form-group mt-4">
-                            <input type="file" name="file" class="form-control" accept=".jpg,.jpeg,.bmp,.png,.gif,.doc,.docx,.csv,.rtf,.xlsx,.xls,.txt,.pdf,.zip">
-                            </div>
+                    @csrf
 
-                            <button class="w-100 btn btn-lg btn-primary mt-4" type="submit">Save</button>
+                    <div class="form-group">
+                            <label>Project Name:</label>
+
+                            <div class="input-group col-sm-8">
+                                <div class="input-group-addon">
+                                    <i class="fa fa-gg"></i>
+                                </div>
+                                    <select class="form-control select2" name="projectId" id="projectId">
+                                            <option value="0"> --- Select Project --- </option>
+                                            @foreach($Projects as $p)
+                                            <option value="{{ $p->pId }}">{{ $p->pName }}</option>
+                                            @endforeach
+                                    </select>
+                                <span class="text-danger">{{ $errors->has('projectId') ? $errors->first('projectId') : ''}} </span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Attach File:</label>
+
+                            <div class="input-group col-sm-8">
+                                <div class="input-group-addon">
+                                    <i class="fa fa-gg"></i>
+                                </div>
+                                <input type="file" name="file" class="form-control" accept=".jpg,.jpeg,.bmp,.png,.gif,.doc,.docx,.csv,.rtf,.xlsx,.xls,.txt,.pdf,.zip">
+                                <span class="text-danger">{{ $errors->has('file') ? $errors->first('file') : ''}} </span>
+                            </div>
+                        </div>   
+                        <button class="w-100 btn btn-lg btn-primary mt-4" type="submit">Save</button>
                     </form>
             </div>
             <div class="row">

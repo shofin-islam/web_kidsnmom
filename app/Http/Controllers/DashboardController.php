@@ -149,4 +149,10 @@ class DashboardController extends Controller
         return view('reports.upcoming_customer_due',['dueCustomersData'=>$dueCustomersData]);
         
     }
+
+    public function getOrderlist()
+    {
+        return view('reports.order_range_view');
+        
+    }
 }

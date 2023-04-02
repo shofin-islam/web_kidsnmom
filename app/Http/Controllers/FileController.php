@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\File;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreFileRequest;
-
+use App\Classes\UserProjectInfo;
 class FileController extends Controller
 {
     /**
@@ -15,7 +15,11 @@ class FileController extends Controller
      */
     public function index()
     {
-        $files = File::all();
+        $projectInfo = new UserProjectInfo;
+
+        $files = File::select('*')
+        ->whereIn('projectId', $projectInfo->getUserProjectId()->pluck('project_id'))
+        ->get();
 
         return view('reports.file_index', [
             'files' => $files
@@ -29,7 +33,9 @@ class FileController extends Controller
      */
     public function create()
     {
-        return view('reports.file_create');
+        $projectInfo = new UserProjectInfo;
+
+        return view('reports.file_create',['Projects'=>$projectInfo->getUserProjectName()]);
     }
 
     /**
@@ -38,8 +44,18 @@ class FileController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(StoreFileRequest $request)
+    public function store(StoreFileRequest $request )
     {
+
+        request()->validate([
+
+            'file' => 'required',
+            'projectId' => 'required|not_in:0'
+        ]);
+
+        
+        $projectId = $request->projectId;
+
         $year = date('Y');
 
         $basePath='file/invoice/'. $year;
@@ -66,6 +82,7 @@ class FileController extends Controller
 
         File::create([
             'user_id' => auth()->id(),
+            'projectId' => $projectId,
             'name' => $request->file->getClientOriginalName(),
             'path' => $basePath.'/'.$fileName,
             'type' => $type,

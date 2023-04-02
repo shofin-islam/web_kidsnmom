@@ -159,7 +159,7 @@
                                     <select class="form-control select2" name="manufacturerId" id="manufacturerId">
                                             <option value="0"> --- Select Manufacturer Name --- </option>
                                             @foreach($manufacturers as $manufacturer)
-                                            <option value="{{ $manufacturer->id }}"> {{ $manufacturer->id }} {{ $manufacturer->manufacturerName }}</option>
+                                            <option value="{{ $manufacturer->id }}"> {{ $manufacturer->id }} {{ $manufacturer->name }}</option>
                                             @endforeach
                                     </select>
                                 <span class="text-danger">{{ $errors->has('manufacturerId') ? $errors->first('manufacturerId') : ''}} </span>
@@ -218,6 +218,7 @@
 <script>
     
     document.getElementById('categoryId').value = {{ $product->categoryId }};
+    document.getElementById('projectId').value = {{ $product->projectId }};
     document.getElementById('manufacturerId').value = {{ $product->manufacturerId }};
     document.getElementById('publicationStatus').value = {{ $product->publicationStatus }};
 </script>

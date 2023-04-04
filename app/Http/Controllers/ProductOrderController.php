@@ -109,7 +109,6 @@ class ProductOrderController extends Controller
         $cId = $request->customerId;
         $unit = $request->unit;
         $methodId = $request->methodId;
-        $projectId = $request->projectId;
 
         // $productById = Product::find($request->productId);
         $productById = Product::where('id', $pId )->first();
@@ -120,6 +119,7 @@ class ProductOrderController extends Controller
         request()->validate([
             'productId' => 'required|not_in:0',
             'customerId' => 'required|not_in:0',
+            'projectId' => 'required|not_in:0',
             'unit' => ['required','min:1','numeric', function ($attribute, $value, $fail)use ($productById) {
                 $available = $productById->productQuantity;
                 if ($value > $available ) {
@@ -177,7 +177,7 @@ class ProductOrderController extends Controller
         $payment->productId = $pId;
         $payment->customerId = $cId;
 
-        $payment->projectId = $projectId;
+        $payment->projectId = $productProject;
         $payment->paymentMethod = $methodId;
         $payment->amount = $paidAmount;
         $payment->paymentType = 1;

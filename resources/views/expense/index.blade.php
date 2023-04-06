@@ -124,7 +124,7 @@
                         <td>{{ $expense->name }}</td>
                         <td>{{ $expense->amount }}</td>
                         <td>{{ $expense->projectName }}</td>
-                        <td>{{ $expense->details }}</td>
+                        <td>{!! $expense->details !!}</td>
                         <td>
                             @can('expense-edit')
                             <a href="{{ route('expense.edit',$expense->id) }}" class="btn btn-success" title="Edit">
@@ -139,7 +139,7 @@
 
                             @can('expense-delete')
 
-                            <button type="submit" class="btn btn-danger">Delete</button>
+                            <button type="submit" class="btn btn-danger"><span class="glyphicon glyphicon-remove"></span></button>
 
                             @endcan
                             </form>

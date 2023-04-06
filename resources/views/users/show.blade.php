@@ -70,6 +70,26 @@
 
     </div>
 
+    <div class="col-xs-12 col-sm-12 col-md-12">
+
+        <div class="form-group">
+
+            <strong>Project:</strong>
+
+            @if(!empty($projectsNames))
+
+                @foreach($projectsNames as $p)
+
+                    <label class="badge badge-success">{{ $p->projectsNames }}</label>
+
+                @endforeach
+
+            @endif
+
+        </div>
+
+    </div>
+
 </div>
 
 @endsection

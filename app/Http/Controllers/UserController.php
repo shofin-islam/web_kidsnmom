@@ -13,6 +13,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Project;
 use App\Models\ProjectUser;
+use App\Classes\UserProjectInfo;
 
 use Spatie\Permission\Models\Role;
 
@@ -41,12 +42,38 @@ class UserController extends Controller
     public function index(Request $request)
 
     {
+        $projectInfo = new UserProjectInfo;
+        $projectsNames = $projectInfo->getUserProjectName();
 
-        $data = User::orderBy('id','DESC')->paginate(10);
+        // $data = User::orderBy('id','DESC')->paginate(10);
+        
+        $users = User::select('users.*', 'projects.name as project_name')
+                ->leftJoin('project_users', 'users.id', '=', 'project_users.user_id')
+                ->leftJoin('projects', 'project_users.project_id', '=', 'projects.id')
+                ->orderBy('users.id', 'ASC')
+                ->paginate(20);
 
-        return view('users.index',compact('data'))
+        $usersWithProjects = [];
 
-            ->with('i', ($request->input('page', 1) - 1) * 10);
+        foreach ($users as $user) {
+            if (!isset($usersWithProjects[$user->id])) {
+                $usersWithProjects[$user->id] = [
+                    'user' => $user,
+                    'projects' => [],
+                ];
+            }
+
+    $usersWithProjects[$user->id]['projects'][] = $user->project_name;
+}
+
+// dd($usersWithProjects);
+
+return view('users.index', compact('users', 'usersWithProjects'))->with('i', ($request->input('page', 1) - 1) * 20);
+
+                
+        // return view('users.index',compact('data'))
+
+        //     ->with('i', ($request->input('page', 1) - 1) * 10);
 
     }
 
@@ -147,10 +174,13 @@ class UserController extends Controller
     public function show($id)
 
     {
+        $projectsNames = ProjectUser::select('projects.name as projectsNames')
+        ->leftJoin('projects', 'project_users.project_id', '=', 'projects.id')
+        ->where('user_id',$id)->get();
 
         $user = User::find($id);
 
-        return view('users.show',compact('user'));
+        return view('users.show',compact('user','projectsNames'));
 
     }
 

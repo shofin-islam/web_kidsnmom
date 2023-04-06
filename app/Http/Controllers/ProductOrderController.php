@@ -51,6 +51,7 @@ class ProductOrderController extends Controller
             'product_orders.due',
             'product_orders.deletionStatus',
             'product_orders.profit',
+            'product_orders.created_at',
             'p.name as productName',
             'c.name as customerName',
             'c.phoneNumber as CustomersContact',
@@ -305,18 +306,6 @@ class ProductOrderController extends Controller
         $productOrderUnit = $productOrder->unit;
         $oldProductId=$productOrder->productId;
         request()->validate([
-            'productId' => ['required','not_in:0', function ($attribute, $value, $fail)use ($productOrder) {
-                $x = $productOrder->productId;
-                if ($value != $x ) {
-                      $fail($attribute.' must be same.');
-                 }
-           }],
-            'customerId' => ['required','not_in:0', function ($attribute, $value, $fail)use ($productOrder) {
-                $y = $productOrder->customerId;
-                if ($value != $y ) {
-                      $fail($attribute.' must be same.');
-                 }
-           }],
            'dueDate' => 'required|date|after_or_equal:today'
         ]);
         

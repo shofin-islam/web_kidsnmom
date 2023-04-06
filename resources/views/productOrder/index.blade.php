@@ -90,7 +90,7 @@
         <div class="col-xs-12">
             <div class="box">
                 <div class="box-header">
-                <div class="pull-left">
+                    <div class="pull-left">
                         <a class="btn btn-warning" href="{{ route('sales.create') }}"> New Order</a>
                     </div>
                     <div class="center-block" style="text-align: center; margin: 3px;padding: 3px;">
@@ -120,6 +120,7 @@
                         <th>Due</th>
                         <th>Project</th>
                         <th>Status</th>
+                        <th>Created</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -137,6 +138,7 @@
                         <td>{{ $order->due }}</td>
                         <td>{{ $order->projectName }}</td>
                         <td>{{ $order->deletionStatus==1 ? 'Deleted' : ''}}</td>
+                        <td>{{ $order->created_at}}</td>
                         <td>
                             <a href="{{ route('sales.show',$order->id) }}" class="btn btn-info" title="View"><span class="glyphicon glyphicon-zoom-in"></span>
                             </a>
@@ -147,14 +149,15 @@
                             </a>
                             @endif
                             @endcan
+                            @can('product-order-delete')
                             <form action="{{ route('sales.destroy',$order->id) }}" method="POST">
                             @csrf
 
                             @method('DELETE')
 
-                            @can('product-order-delete')
+                            
 
-                            <button type="submit" class="btn btn-danger">Delete</button>
+                            <button type="submit" class="btn btn-danger"><span class="glyphicon glyphicon-remove"></span></button>
 
                             @endcan
                             </form>

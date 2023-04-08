@@ -122,9 +122,9 @@
       <!-- small box -->
       <div class="small-box bg-aqua">
         <div class="inner">
-          <h3> ===== </h3>
+          <h3>{{$orderInfo['profit']}}</h3>
 
-          <p>Expense</p>
+          <p>Curent month profit</p>
         </div>
         <div class="icon">
           <i class="ion ion-bag"></i>

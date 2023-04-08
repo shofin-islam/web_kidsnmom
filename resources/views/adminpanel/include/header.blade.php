@@ -1,10 +1,10 @@
 <header class="main-header">
     <!-- Logo -->
-    <a href="{{url('/home')}}" class="logo">
+    <a href="{{url('/')}}" class="logo">
       <!-- mini logo for sidebar mini 50x50 pixels -->
-      <span class="logo-mini"><b>S</b>C</span>
+      <span class="logo-mini"><b>A</b></span>
       <!-- logo for regular state and mobile devices -->
-      <span class="logo-lg"><b>{{ config('app.name') }}.</b>Com</span>
+      <span class="logo-lg">{{ config('app.name') }}</span>
     </a>
     <!-- Header Navbar: style can be found in header.less -->
     <nav class="navbar navbar-static-top">
@@ -34,7 +34,7 @@
 
                 <p>
                   {{ Auth::user()->name }}
-                  <small>Member since Nov. 2012</small>
+                  <small>Member since March. 2023</small>
                 </p>
               </li>
               <!-- Menu Body -->

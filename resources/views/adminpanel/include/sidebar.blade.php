@@ -5,10 +5,11 @@
         <!-- Sidebar user panel -->
         <div class="user-panel">
             <div class="pull-left image">
-                <img src="{{asset('admino/dist/img/user2-160x160.jpg')}}" class="img-circle" alt="User Image">
+                <img src="{{asset('assets/adminpanel/dist/img/user2-160x160.jpg')}}" class="img-circle" alt="User Image">
             </div>
             <div class="pull-left info">
                 <p>{{ Auth::user()->name }}</p>
+                <a href="#"><i class="fa fa-circle text-success"></i> Online</a>
             </div>
         </div>
         <!-- search form -->
@@ -26,7 +27,7 @@
         <ul class="sidebar-menu" data-widget="tree">
             <li class="header">MAIN NAVIGATION</li>
 
-            <li class="active"><a href="{{url('/dashboard')}}"><i class="fa fa-dashboard"></i> <span>Dashboard</span></a></li>
+            <li class="active"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> <span>Dashboard</span></a></li>
 
             <li class="treeview">
                 <a href="#">
@@ -64,6 +65,7 @@
                     <li><a href="{{route('expense.index')}}"><i class="fa fa-eye"></i> Expense</a></li>
                 </ul>
             </li>
+            <li><a href="{{route('manufacturer')}}"><i class="fa fa-circle-o text-red"></i> <span>Manufacturers</span></a></li>
             <li><a href="{{route('customers.index')}}"><i class="fa fa-circle-o text-red"></i> <span>Customers</span></a></li>
             <li><a href="{{route('sales.index')}}"><i class="fa fa-circle-o text-red"></i> <span>Sales</span></a></li>
             <li><a href="{{route('payment.index')}}"><i class="fa fa-circle-o text-red"></i> <span>Payment</span></a></li>

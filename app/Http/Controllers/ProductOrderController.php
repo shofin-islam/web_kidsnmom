@@ -51,6 +51,7 @@ class ProductOrderController extends Controller
             'product_orders.due',
             'product_orders.deletionStatus',
             'product_orders.profit',
+            'product_orders.created_at',
             'p.name as productName',
             'c.name as customerName',
             'c.phoneNumber as CustomersContact',
@@ -109,7 +110,6 @@ class ProductOrderController extends Controller
         $cId = $request->customerId;
         $unit = $request->unit;
         $methodId = $request->methodId;
-        $projectId = $request->projectId;
 
         // $productById = Product::find($request->productId);
         $productById = Product::where('id', $pId )->first();
@@ -120,6 +120,7 @@ class ProductOrderController extends Controller
         request()->validate([
             'productId' => 'required|not_in:0',
             'customerId' => 'required|not_in:0',
+            'projectId' => 'required|not_in:0',
             'unit' => ['required','min:1','numeric', function ($attribute, $value, $fail)use ($productById) {
                 $available = $productById->productQuantity;
                 if ($value > $available ) {
@@ -177,7 +178,7 @@ class ProductOrderController extends Controller
         $payment->productId = $pId;
         $payment->customerId = $cId;
 
-        $payment->projectId = $projectId;
+        $payment->projectId = $productProject;
         $payment->paymentMethod = $methodId;
         $payment->amount = $paidAmount;
         $payment->paymentType = 1;
@@ -305,18 +306,6 @@ class ProductOrderController extends Controller
         $productOrderUnit = $productOrder->unit;
         $oldProductId=$productOrder->productId;
         request()->validate([
-            'productId' => ['required','not_in:0', function ($attribute, $value, $fail)use ($productOrder) {
-                $x = $productOrder->productId;
-                if ($value != $x ) {
-                      $fail($attribute.' must be same.');
-                 }
-           }],
-            'customerId' => ['required','not_in:0', function ($attribute, $value, $fail)use ($productOrder) {
-                $y = $productOrder->customerId;
-                if ($value != $y ) {
-                      $fail($attribute.' must be same.');
-                 }
-           }],
            'dueDate' => 'required|date|after_or_equal:today'
         ]);
         

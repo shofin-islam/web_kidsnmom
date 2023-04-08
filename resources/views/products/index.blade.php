@@ -90,6 +90,9 @@
         <div class="col-xs-12">
             <div class="box">
                 <div class="box-header">
+                    <div class="pull-left">
+                        <a class="btn btn-warning" href="{{ route('products.create') }}"> New Product</a>
+                    </div>
                     <div class="center-block" style="text-align: center; margin: 3px;padding: 3px;">
                         <i class="fa fa-tasks"></i>
                         <h3 class="box-title">Manage Product</h3><br>
@@ -147,7 +150,7 @@
 
                             @can('product-delete')
 
-                            <button type="submit" class="btn btn-danger">Delete</button>
+                            <button type="submit" class="btn btn-danger"><span class="glyphicon glyphicon-remove"></span></button>
 
                             @endcan
                             </form>

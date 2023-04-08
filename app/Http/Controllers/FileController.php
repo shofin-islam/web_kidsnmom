@@ -13,6 +13,21 @@ class FileController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
+     function __construct()
+
+    {
+
+         $this->middleware('permission:files-list|files-create|files-edit|files-delete', ['only' => ['index','show']]);
+
+         $this->middleware('permission:files-create', ['only' => ['create','store']]);
+
+         $this->middleware('permission:files-edit', ['only' => ['edit','update']]);
+
+         $this->middleware('permission:files-delete', ['only' => ['destroy']]);
+
+    }
+
     public function index()
     {
         $projectInfo = new UserProjectInfo;

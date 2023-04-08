@@ -57,7 +57,7 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label>Product Name:</label>
+                            <label>Order:</label>
                             <div class="input-group col-sm-8">
                                 <div class="input-group-addon">
                                     <i class="fa fa-gg"></i>

@@ -283,7 +283,7 @@
            data:{'id': productId, '_token': $('input[name="token"]').val()},
            success:function(data){
             console.log(data);
-            $("#productDetails").html("Name: "+data[0].name+"<br>Code: "+data[0].code+"<br>Purchase Price: "+data[0].purchasePrice+"<br>Sale price: "+data[0].salesPrice+"<br>Product Quantity: "+data[0].productQuantity);
+            $("#productDetails").html("Name: "+data[0].name+"<br>Code: "+data[0].productCode+"<br>Purchase Price: "+data[0].purchasePrice+"<br>Sale price: "+data[0].salesPrice+"<br>Product Quantity: "+data[0].productQuantity);
             unitPrice = data[0].salesPrice;
             availableUnit=data[0].productQuantity;
             reset();

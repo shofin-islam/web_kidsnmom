@@ -64,7 +64,7 @@ Route::get('/', function () {
 
 Route::group(['middleware' => ['auth']], function() {
 
-    Route::get('/dashboard', [DashboardController::class,'getLastMonthData']);
+    Route::get('/', [DashboardController::class,'getLastMonthData']);
     Route::get('/customers/due', [DashboardController::class,'getDueCustomerList']);
     Route::get('/customers/due/exports', [ProductOrderController::class, 'exportDueCustomers']);
     Route::get('/sales/exports', [DashboardController::class,'getOrderlist'])->name('sales.exportview');

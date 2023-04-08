@@ -46,26 +46,27 @@
    <th>Email</th>
 
    <th>Roles</th>
+   <th>Projects</th>
 
    <th width="280px">Action</th>
 
  </tr>
 
- @foreach ($data as $key => $user)
+ @foreach ($usersWithProjects as $key => $userWithProjects)
 
   <tr>
 
-    <td>{{ ++$i }}</td>
+    <td>{{ $userWithProjects['user']->id }}</td>
 
-    <td>{{ $user->name }}</td>
+    <td>{{ $userWithProjects['user']->name }}</td>
 
-    <td>{{ $user->email }}</td>
+    <td>{{ $userWithProjects['user']->email }}</td>
 
     <td>
 
-      @if(!empty($user->getRoleNames()))
+      @if(!empty($userWithProjects['user']->getRoleNames()))
 
-        @foreach($user->getRoleNames() as $v)
+        @foreach($userWithProjects['user']->getRoleNames() as $v)
 
            <label class="badge badge-success">{{ $v }}</label>
 
@@ -74,14 +75,24 @@
       @endif
 
     </td>
+    <td>
+    @if(count($userWithProjects['projects']) > 0)
+            @foreach ($userWithProjects['projects'] as $projectName)
+                <label class="badge badge-success">{{ $projectName }}</label>
+            @endforeach
+    @else
+    <label class="badge badge-success">No Project</label>
+    @endif
+
+    </td>
 
     <td>
 
-       <a class="btn btn-info" href="{{ route('users.show',$user->id) }}">Show</a>
+       <a class="btn btn-info" href="{{ route('users.show',$userWithProjects['user']->id) }}">Show</a>
 
-       <a class="btn btn-primary" href="{{ route('users.edit',$user->id) }}">Edit</a>
+       <a class="btn btn-primary" href="{{ route('users.edit',$userWithProjects['user']->id) }}">Edit</a>
 
-        {!! Form::open(['method' => 'DELETE','route' => ['users.destroy', $user->id],'style'=>'display:inline']) !!}
+        {!! Form::open(['method' => 'DELETE','route' => ['users.destroy', $userWithProjects['user']->id],'style'=>'display:inline']) !!}
 
             {!! Form::submit('Delete', ['class' => 'btn btn-danger']) !!}
 
@@ -95,7 +106,6 @@
 
 </table>
 
-
-{!! $data->render() !!}
+{{ $users->links('vendor.pagination.custom')}}
 
 @endsection

@@ -50,16 +50,18 @@ class DashboardController extends Controller
         ->whereYear('created_at', date('Y'))
         ->where('deletionStatus',0)
         ->whereIn('projectId', $projectInfo->getUserProjectId()->pluck('project_id'))
-        ->get(['payable','paid','due','created_at']);
+        ->get(['payable','paid','due','profit','created_at']);
         
         $payable = 0;
         $dueAmount = 0;
         $paidAmount = 0;
+        $profit = 0;
         
         foreach($ordersData as $od){
             $payable=$payable+$od->payable;
             $dueAmount=$dueAmount+$od->due;
             $paidAmount=$paidAmount+$od->paid;
+            $profit=$profit+$od->profit;
         }
         $orderInfo= array(
             "payable" => $payable,
@@ -67,6 +69,7 @@ class DashboardController extends Controller
             "due" => $dueAmount,
             "totalPaymentReceived" => $totalPaymentReceived,
             "productStock" => $productStock,
+            "profit" => $profit,
           );
 
         //   except current month data

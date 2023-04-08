@@ -132,9 +132,7 @@
                             </a>
                             @endcan
                             
-                           
                             @can('product-delete')
-
                             <a href="{{ route('manufacturer.destroy',$extype->id) }}" class="btn btn-danger" title="Edit">
                              <span class="glyphicon glyphicon-remove"></span>
                             </a>

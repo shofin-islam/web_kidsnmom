@@ -155,12 +155,9 @@
 
                             @method('DELETE')
 
-                            
-
                             <button type="submit" class="btn btn-danger"><span class="glyphicon glyphicon-remove"></span></button>
-
-                            @endcan
                             </form>
+                            @endcan
                     </tr>
                     @endforeach
                      

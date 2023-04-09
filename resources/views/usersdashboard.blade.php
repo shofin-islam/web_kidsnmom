@@ -6,7 +6,7 @@
     <small>Control panel</small>
   </h1>
   <ol class="breadcrumb">
-    <li><a href="{{url('/dashboard')}}"><i class="fa fa-dashboard"></i> Home</a></li>
+    <li><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
     <li class="active">Dashboard</li>
   </ol>
 </section>
@@ -26,7 +26,7 @@
         <div class="icon">
           <i class="ion ion-bag"></i>
         </div>
-        <a href="{{ url('/order/manage') }}" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+        <a href="{{ url('/expense') }}" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
       </div>
     </div>
     <!-- ./col -->
@@ -40,7 +40,7 @@
         <div class="icon">
           <i class="ion ion-stats-bars"></i>
         </div>
-        <a href="#" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+        <a href="{{ url('/sales') }}" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
       </div>
     </div>
     <!-- ./col -->
@@ -54,7 +54,7 @@
         <div class="icon">
           <i class="ion ion-person-add"></i>
         </div>
-        <a href="#" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+        <a href="{{ url('/sales') }}" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
       </div>
     </div>
     <!-- ./col -->
@@ -68,7 +68,7 @@
         <div class="icon">
           <i class="ion ion-pie-graph"></i>
         </div>
-        <a href="{{ url('/stats/unique') }}" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+        <a href="{{ url('/customers/due') }}" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
       </div>
     </div>
     <!-- ./col -->
@@ -86,7 +86,7 @@
         <div class="icon">
           <i class="ion ion-pie-graph"></i>
         </div>
-        <a href="{{ url('/stats/unique') }}" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+        <a href="{{ url('/sales') }}" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
       </div>
     </div>
     <!-- ./col -->
@@ -100,7 +100,7 @@
         <div class="icon">
           <i class="ion ion-person-add"></i>
         </div>
-        <a href="#" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+        <a href="{{ url('/payment') }}" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
       </div>
     </div>
     <!-- ./col -->
@@ -114,24 +114,27 @@
         <div class="icon">
           <i class="ion ion-stats-bars"></i>
         </div>
-        <a href="#" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+        <a href="{{ url('/products') }}" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
       </div>
     </div>
     <!-- ./col -->
+    
     <div class="col-lg-3 col-xs-6">
       <!-- small box -->
       <div class="small-box bg-aqua">
         <div class="inner">
+          @can('profit-show')
           <h3>{{$orderInfo['profit']}}</h3>
-
           <p>Curent month profit</p>
+          @endcan
         </div>
         <div class="icon">
           <i class="ion ion-bag"></i>
         </div>
-        <a href="{{ url('/order/manage') }}" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+        <a href="{{ url('/sales') }}" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
       </div>
     </div>
+    
     <!-- ./col -->
   </div>
   <!-- cards second row ended -->
@@ -157,7 +160,7 @@
           <!-- /. tools -->
         </div>
         <div class="box-body">
-          <form action="{{ url('/quickMail') }}" method="POST">
+          <form action="#" method="">
             {{ csrf_field() }}
             <div class="form-group">
               <input type="email" class="form-control" name="emailto" placeholder="Email to:" required="">
@@ -172,7 +175,7 @@
           
         </div>
         <div class="box-footer clearfix">
-          <button type="submit" class="center-block btn btn-default" id="sendEmail">Send
+          <button type="" class="center-block btn btn-default" id="sendEmail">Send
             <i class="fa fa-arrow-circle-right"></i></button>
           </div>
           </form>

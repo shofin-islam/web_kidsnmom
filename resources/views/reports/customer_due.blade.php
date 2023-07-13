@@ -117,6 +117,7 @@
                         <th>Paid</th>
                         <th>Due</th>
                         <th>Due Date</th>
+                        <th>Address</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -130,6 +131,7 @@
                         <td>{{ $dueData->paid }}</td>
                         <td>{{ $dueData->due }}</td>
                         <td>{{ $dueData->dueDate }}</td>
+                        <td>{{ $dueData->cAddress }}</td>
                     </tr>
                     @endforeach
                      

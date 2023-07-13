@@ -102,8 +102,12 @@ class ProductOrderController extends Controller
             'unit' => 'required|min:1|numeric',
             'dueDate' => 'required|date|after_or_equal:today',
             'methodId' => 'required|not_in:0',
+            'flatDiscount' => 'required|numeric|between:0,999999999',
+            'paid' => 'required|numeric|min:0|between:0,999999999'
         ]);
         
+
+
         $mdy = explode('/', $request->dueDate); // split the string into an array of parts
         $ymd = $mdy[2] . '-' . $mdy[0] . '-' . $mdy[1].' 23:59:59'; // create a new string with the parts rearranged
         $pId = $request->productId;
@@ -113,32 +117,32 @@ class ProductOrderController extends Controller
 
         // $productById = Product::find($request->productId);
         $productById = Product::where('id', $pId )->first();
+        $customerInfo = Customer::where('id', $cId)->first();
 
         $purchasePrice_Unit = $productById->purchasePrice;
         $investFromOrder = $unit*$purchasePrice_Unit;
 
+         
+
         request()->validate([
-            'productId' => 'required|not_in:0',
-            'customerId' => 'required|not_in:0',
-            'projectId' => 'required|not_in:0',
             'unit' => ['required','min:1','numeric', function ($attribute, $value, $fail)use ($productById) {
                 $available = $productById->productQuantity;
                 if ($value > $available ) {
                       $fail($attribute.' not available.');
                  }
            }],
-            'flatDiscount' => 'required|numeric|between:0,999999999',
-            'paid' => 'required|numeric|min:0|between:0,999999999',
-            'payable' => 'numeric|min:0|between:0,999999999',
-            'due' => 'numeric|min:0',
-            'subTotal' => 'numeric|gt:0',
-            'dueDate' => 'required|date|after_or_equal:today',
+           'customPrice' => ['required','between:1,999999999','numeric', function ($attribute, $value, $fail)use ($productById) {
+            $purchasePriceToValidate = $productById->purchasePrice;
+            
+            if ($value < $purchasePriceToValidate ) {
+                  $fail($attribute.' less than purchase price');
+             }
+        }]    
         ]);
-        
-        $customerInfo = Customer::where('id', $cId)->first();
+
+        $unitPrice =$request->customPrice;
         $phoneNumber = $customerInfo->phoneNumber;
 
-        $unitPrice = $productById->salesPrice;
         $productCode = $productById->productCode;
         $productProject = $productById->projectId;
         $subTotal = $unit*$unitPrice;

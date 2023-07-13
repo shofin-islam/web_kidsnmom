@@ -72,7 +72,17 @@
                                 <span class="text-danger">{{ $errors->has('customerId') ? $errors->first('customerId') : ''}} </span>
                             </div>
                         </div>
-                        
+                        <div class="form-group">
+                            <label>Custom Price:</label>
+                            <div class="input-group col-sm-8">
+                                <div class="input-group-addon">
+                                    <i class="fa fa-gg"></i>
+                                </div>
+                                <input type="number" name="customPrice" id="custom_price" class="form-control" value="{{ old('customPrice') }}">
+                                <span class="text-danger">{{ $errors->has('customPrice') ? $errors->first('customPrice') : ''}} </span>
+                            </div>
+                        </div>
+
                         <div class="form-group">
                             <label>Unit:</label>
                             <div class="input-group col-sm-8">
@@ -117,6 +127,44 @@
                             </div>
                         </div>
                         
+                        
+                        
+                    </div>
+                </div>
+            </div>
+            <!-- /.col (left) -->
+            <div class="col-md-6">
+                <div class="box box-danger">
+                    <div class="box-body">
+                        
+                        <div class="form-group">
+                            <label>Product Details:</label>
+                            <div class="input-group col-sm-8" id="productDetails">
+                                
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Customer Details:</label>
+                            <div class="input-group col-sm-8" id="customerDetails">
+                                
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Payment methods:</label>
+                            <div class="input-group col-sm-8">
+                                <div class="input-group-addon">
+                                    <i class="fa fa-gg"></i>
+                                </div>
+                                <select class=" form-control select2" name="methodId" id="methodId">
+                                            <option value="0"> --- Select Payment Method --- </option>
+                                            @foreach($methods as $method)
+                                            <option value="{{ $method->id }}">{{ $method->methodName }}</option>
+                                            @endforeach
+                                        </select>
+                                <span class="text-danger">{{ $errors->has('methodId') ? $errors->first('methodId') : ''}} </span>
+                            </div>
+                        </div>
                         <div class="form-group">
                             <label>Paid:</label>
 
@@ -151,51 +199,13 @@
                             </div>
                             <!-- /.input group -->
                         </div>
-                        
-                    </div>
-                </div>
-            </div>
-            <!-- /.col (left) -->
-            <div class="col-md-6">
-                <div class="box box-danger">
-                    <div class="box-body">
-                        
-                        <div class="form-group">
-                            <label>Product Details:</label>
-                            <div class="input-group col-sm-6" id="productDetails">
-                                
-                            </div>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>Customer Details:</label>
-                            <div class="input-group col-sm-6" id="customerDetails">
-                                
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>Payment methods:</label>
-                            <div class="input-group col-sm-6">
-                                <div class="input-group-addon">
-                                    <i class="fa fa-gg"></i>
-                                </div>
-                                <select class=" form-control select2" name="methodId" id="methodId">
-                                            <option value="0"> --- Select Payment Method --- </option>
-                                            @foreach($methods as $method)
-                                            <option value="{{ $method->id }}">{{ $method->methodName }}</option>
-                                            @endforeach
-                                        </select>
-                                <span class="text-danger">{{ $errors->has('methodId') ? $errors->first('methodId') : ''}} </span>
-                            </div>
-                        </div>
-                        
                         <div class="form-group">
                             <label>Note:</label>
                             
-                            <div class="input-group">
+                            <div class="input-group col-md-12">
                                 <div class="form-group" style=" margin-top: 5px;">
-                                    <textarea class="textarea " name="note" value="{{ old('note') }}" placeholder="Short Note"
-                                        style="width: 100%;height: 125px; font-size: 14px; line-height: 18px; border: 1px solid #dddddd; padding: 10px;">{{ old('note') }}
+                                    <textarea class="col-md-8" name="note" value="{{ old('note') }}" placeholder="Short Note"
+                                        style="font-size: 14px; line-height: 18px; border: 1px solid #dddddd; padding: 10px;">{{ old('note') }}
                                     </textarea>
                                     <span class="text-danger">{{ $errors->has('note') ? $errors->first('note') : ''}} </span>
                                 </div>
@@ -237,8 +247,10 @@
         var flatDiscount = $("#flatDiscount");
         var paid = $("#paid");
         var due = $("#due");
+        var custom_price = $("#custom_price");
         due.prop('disabled',true);
-        var unitPrice=0;
+        var purchase_price=0;
+        var unitPrice= 0;
         var subTotalAmount=0;
         var payableAmount=0;
         var availableUnit=0;
@@ -251,6 +263,19 @@
                 reset();
             }else if(unit.val()>availableUnit){
                 alert("Available Unit: "+availableUnit);
+                reset();
+            }else{
+                calculate();
+            }
+              
+        });
+
+        custom_price.on('change',function(e){
+            if(custom_price.val()<=0){
+                alert("Invalid Custom Price !");
+                reset();
+            }else if(custom_price.val()<purchase_price){
+                alert("Custom price less than purchase price: ");
                 reset();
             }else{
                 calculate();
@@ -283,8 +308,8 @@
            data:{'id': productId, '_token': $('input[name="token"]').val()},
            success:function(data){
             console.log(data);
-            $("#productDetails").html("Name: "+data[0].name+"<br>Code: "+data[0].productCode+"<br>Sale price: "+data[0].salesPrice+"<br>Product Quantity: "+data[0].productQuantity);
-            unitPrice = data[0].salesPrice;
+            $("#productDetails").html("Name: "+data[0].name+" / Code: "+data[0].productCode+" / Sale price: "+data[0].salesPrice+" / Product Quantity: "+data[0].productQuantity);
+            purchase_price=data[0].purchasePrice;
             availableUnit=data[0].productQuantity;
             reset();
         }
@@ -300,7 +325,7 @@
            data:{'id': customerId, '_token': $('input[name="token"]').val()},
            success:function(data){
             console.log(data);
-            $("#customerDetails").html(data[0].name+"<br>"+data[0].address+"<br>"+data[0].phoneNumber);
+            $("#customerDetails").html(data[0].name+" / "+data[0].address+" / "+data[0].phoneNumber);
            }
         });
 
@@ -319,7 +344,7 @@
     }
 
     function calculate(){
-
+            unitPrice=custom_price.val();
             flatDiscountAmount=flatDiscount.val();
             unitValue = unit.val()
             subTotalAmount = unitPrice*unitValue;
@@ -329,10 +354,16 @@
             if(unitPrice<=0){
                 alert("Invalid Unit Price, Select a product first!");
                 reset();
-            }else if(unitValue<=0){
+            }
+            else if(unitPrice<=purchase_price){
+                alert("Custom Price should more than purchase price!");
+                reset();
+            }
+            else if(unitValue<=0){
                 alert("Invalid Unit, Check the unit first!");
                 reset();
-            }else if(subTotalAmount<flatDiscountAmount){  
+            }
+            else if(subTotalAmount<flatDiscountAmount){  
                 alert("Discount amount is greater than sub total Amount!");
                 reset();
             }else if(payableAmount<paidAmount){  

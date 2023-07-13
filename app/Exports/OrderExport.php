@@ -21,6 +21,7 @@ class OrderExport implements FromCollection,WithHeadings
             'p.name as productName',
             'c.name as customerName',
             'c.phoneNumber as CustomersContact',
+            'c.address as cAddress',
             'product_orders.unit',
             'product_orders.payable',
             'product_orders.paid',
@@ -31,18 +32,18 @@ class OrderExport implements FromCollection,WithHeadings
         ->join('products as p', 'p.id', '=', 'product_orders.productId')
         ->join('customers as c', 'c.id', '=', 'product_orders.customerId')
         ->join('projects', 'product_orders.projectId', '=', 'projects.id')
-        ->where([['product_orders.due','>',0]])
+        ->where([['product_orders.due','>',0],['product_orders.deletionStatus','=',0]])
         ->whereIn('product_orders.projectId', $projectInfo->getUserProjectId()->pluck('project_id'))
         ->get();
 
-        return $dueCustomersData;
+        // return $dueCustomersData;
     }
 
     public function headings(): array
 
     {
 
-        return ["ID","Product","Customer","Phone", "Unit", "Payable","Paid", "due","Project"];
+        return ["ID","Product","Customer","Phone","Address", "Unit", "Payable","Paid", "due","Project"];
 
     }
 }

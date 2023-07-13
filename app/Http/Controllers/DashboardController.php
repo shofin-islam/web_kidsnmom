@@ -113,13 +113,14 @@ class DashboardController extends Controller
             'product_orders.dueDate',
             'p.name as productName',
             'c.name as customerName',
+            'c.address as cAddress',
             'c.phoneNumber as CustomersContact'
 
         )
         ->join('products as p', 'p.id', '=', 'product_orders.productId')
         ->join('customers as c', 'c.id', '=', 'product_orders.customerId')
         ->whereIn('product_orders.projectId', $projectInfo->getUserProjectId()->pluck('project_id'))
-        ->where([['product_orders.due','>',0]])
+        ->where([['product_orders.due','>',0],['product_orders.deletionStatus','=',0]])
         ->get();
         
         return view('reports.customer_due',['dueCustomersData'=>$dueCustomersData]);
@@ -140,6 +141,7 @@ class DashboardController extends Controller
             'product_orders.dueDate',
             'p.name as productName',
             'c.name as customerName',
+            'c.address as cAddress',
             'c.phoneNumber as CustomersContact'
         )
         ->join('products as p', 'p.id', '=', 'product_orders.productId')
